@@ -1,0 +1,70 @@
+.sidebar-section{
+    width: auto;
+    transform: translateX();
+    display: flex;
+    flex-direction: column;
+    padding:10px;
+}
+.sibebar-header{
+    height:100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin-bottom: 50px;
+    padding-bottom: 0px;
+    /* border: 1px solid black; */
+    border-bottom: px solid black;
+}
+.sibebar-header div{
+    display: flex;
+    border: 1px solid black;
+}
+
+.sidebar-features{
+    border: 1px solid black;
+    padding: 5px;
+    text-indent: 5px;
+}
+
+.sidebar-features> div{
+    position: relative;
+    border-bottom: 1px solid black;
+    border-radius: 0px;
+    padding: 0px;
+}
+.sidebar-features> div:last-child{
+    border-bottom: 0px solid black;
+}
+/* .sidebar-features> div:hover h3 {
+    transition: 0.2s;
+    text-indent: 20px;
+} */
+.sidebar-features> div>div ul{
+    list-style-type: none;
+    border: 0px solid black;
+    padding-left: 7px;
+}
+.sidebar-features> div>div ul li{
+    border: 0px solid black;
+    border-radius: 3px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.sidebar-features> div>div ul li:hover{
+    background-color: rgb(197, 195, 195);
+}
+
+.meeting-creation{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border: 0px solid black;
+}
+
+.meeting-creation .new-meeting-icon:hover{
+    font-size: 25px ;
+}

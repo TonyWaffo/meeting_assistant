@@ -1,0 +1,70 @@
+.media-handler{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+    border: 0px solid black;
+    border-radius: 5px;
+    padding:10px
+}
+
+.media-uploader{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px dashed black;
+    border-radius: 5px;
+    padding: 50px 10px;
+}
+.media-uploader .upload-icon:hover{
+    transform: scale(1.1);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.media-recorder{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:20px;
+    border: 1px dashed black;
+    border-radius: 5px;
+    padding:10px;
+}
+.mic-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 10px;
+    transition: border-width 0.3s ease-in;
+}
+.recorder-button{
+    height:50px;
+}
+.mic-container.pulsing-circle{
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%{
+        border-width: 1px;
+        opacity: 1;
+    }
+    25%{
+        border-width: 10px;
+        opacity: 0.8;
+    }
+    100%{
+        border-width: 1px;
+        opacity: 1;
+    }
+
+}

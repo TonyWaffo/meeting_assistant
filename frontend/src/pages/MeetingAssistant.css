@@ -1,0 +1,57 @@
+.meeting-assistant{
+    width:100vw;
+    height:100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    overflow-y: scroll;
+    /* border: 2px solid red; */
+}
+.sidebar{
+    height:100%;
+    width: 300px;
+    border: 1px solid black;
+    transition: 0.5s;
+}
+.sidebar.closed{
+    width:0px;
+    overflow: hidden;
+}
+.sidebar-header{
+    display: flex;
+    flex-direction: row;
+    border: 1px solid  black;
+}
+
+.mainframe{
+    height:100%;
+    border:1px solid black;
+    padding: 20px 20px;
+    flex-grow: 1;
+}
+
+.mainframe-header{
+    padding: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+@media screen and (max-width:900px) {
+    .sidebar{
+        width:70%;
+        position: fixed;
+        top:0;
+        left:0;
+        background-color: white;
+        z-index: 10; 
+    }
+
+    .mainframe.blur{
+        filter: blur(1px);
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+}
