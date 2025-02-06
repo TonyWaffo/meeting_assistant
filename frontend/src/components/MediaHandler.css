@@ -68,3 +68,15 @@
     }
 
 }
+
+.process-audio{
+    cursor: pointer;
+    margin-top: 5px;
+    background-color: rgb(129, 129, 129);
+}
+.process-audio:hover{
+    cursor: pointer;
+    background-color: rgb(129, 129, 129);
+    color:white;
+    transform: scale(1.05);
+}

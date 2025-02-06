@@ -1,31 +1,50 @@
+import { useState,useRef, useEffect } from 'react';
+
 import MediaHandler from "./MediaHandler"
+import './Meeting.css'
+
+import { IoSendSharp } from "react-icons/io5";
 
 const Meeting=()=>{
+    const [file,setFile]=useState("");
+    const [transcript,setTranscript]=useState("hh");
+    const [conversationHistory,setConversationHistory]=useState(null);
+
+    const queryTextAreaRef=useRef(null);
+
+    const handleInputChange=(event)=>{
+        const textArea=queryTextAreaRef.current;
+
+        if(event.target.value.trim()==""){
+            textArea.style.height="80px";
+        }
+    }
+
     let conversations=[
         {
             speaker:'user',
             subject:"Transcription",
-            content:""
+            content:"hhjijijlj"
         },
         {
             speaker:'system',
             subject:"Transcription",
-            content:"........"
+            content:".... ,nk.mk...."
         },
         {
             speaker:'user',
             subject:"Summary",
-            content:""
+            content:"jhjjijk"
         },
         {
             speaker:'system',
             subject:"Summary",
-            content:"........"
+            content:"...jnjlkjhkhkjhkhkhbkbhbhjbjhbjhbjhbjhbhjb....."
         },
         {
             speaker:'user',
             subject:"Q&A",
-            content:""
+            content:"ohhjohuhiuhiug"
         },
         {
             speaker:'system',
@@ -42,11 +61,15 @@ const Meeting=()=>{
 
             {/* Only available when audio file is selected and trancribed button is pressed and when summary or text present in the history */}
             <div className="meeting-content">
-                {/* if no file is processe */}
-                <p>Load and process your file </p>
-                {/* If there  the file is already processed, show the chat */}
-                {conversations.map((conversation,index)=>(
-                    <div className="conversation">
+                {/* if no transcript and no transcript */}
+                {(!transcript && !conversationHistory) && <p>Process your file upload or meeting record </p>}
+
+                {/* if there is a file or histiry being processed, implement a spinning animation */}
+                
+
+                {/* If there is either a transcript available or a conversation history */}
+                { (transcript || conversationHistory) && conversations.map((conversation,index)=>(
+                    <div className={`conversation ${conversation.speaker=="system" ? "system":"user"}`}>
                         <span>{conversation.speaker}</span>
                         <b>{conversation.subject}</b>
                         <p>{conversation.content}</p>
@@ -56,26 +79,31 @@ const Meeting=()=>{
             </div>
 
 
-            <div className="querybox"> 
-                <textarea className="querybox-input">
+            <div className="query-container"> 
+                <textarea className="query-input" 
+                    ref={queryTextAreaRef} 
+                    onChange={handleInputChange}
+                    placeholder='Posez une questions sur le meeting'>
 
                 </textarea>
 
-                <div>
+                <div className="query-actions">
                     {/* Hide this part when the response is loading */}
                     {/* Gray out these elements when no audio file is available  */}
-                    <>
-                        <button>Transcription</button>
-                        <button>Resumer</button>
-                        <i>Icon d'envoi</i> {/* sending icon is grayed out if the text area is empty or the response is loading */}
-                    </>
+                    <div className='query-buttons'>
+                        <div>
+                            <button>Transcription</button>
+                            <button>Resumer</button>
+                        </div>
+                        <div>
+                            <IoSendSharp size={30} /> {/* sending icon is grayed out if the text area is empty or the response is loading */}
+                        </div>
+                    </div>
 
-                    <>
                     {/* Create an animation when the response is loading  */}
-                        <div className="query-box-loading">
+                        <div className="query-loading">
                             ...
                         </div>
-                    </>
                 </div>
             </div>
           </section>

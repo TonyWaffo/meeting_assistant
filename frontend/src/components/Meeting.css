@@ -1,0 +1,72 @@
+.meeting-section{
+    height: 100%;
+    padding: 0px 300px;
+    display: flex;
+    flex-direction: column;
+    border: 0px solid black;
+}
+.meeting-section h2{
+    text-align: center;
+}
+.meeting-content{
+    display: flex;
+    flex-direction: column;
+    border:0px solid black;
+    gap:20px;
+    margin-top: 50px;
+    padding-bottom: 220px;
+    flex-grow: 1;
+}
+
+.meeting-content .conversation{
+    border: 1px solid black;
+    width:70%;
+    padding: 10px;
+}
+.meeting-content .conversation.system{
+    align-self: flex-start;
+    text-align: left;
+    border-radius: 8px 8px 8px 0px;
+}
+.meeting-content .conversation.user{
+    align-self: flex-end;
+    text-align: right;
+    border-radius: 8px 8px 0px 8px
+}
+
+.query-container{
+    position: sticky;
+    bottom: 50px;
+    background-color: white;
+    z-index:5;
+    width:95%;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    gap: 10px;
+}
+.query-container textarea{
+    height: 80px;
+    max-height: 150px;
+    resize: none;
+    border: 0px solid black;
+    outline: none;
+}
+
+.query-container .query-actions .query-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 0px solid red;
+}
+
+.query-container .query-actions .query-buttons button{
+    margin-right: 10px;
+    border: 0px solid black;
+    background-color: rgb(150, 148, 146);
+}

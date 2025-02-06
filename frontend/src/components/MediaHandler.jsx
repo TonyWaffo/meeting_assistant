@@ -76,9 +76,8 @@ const MediaHandler=()=>{
                 }
             </div>
 
-            <div className="media-process">
-                <button className="process-audio">Process audio</button>
-            </div>
+            <button className="process-audio">Process audio</button>
+            
         </div>
 
         </>

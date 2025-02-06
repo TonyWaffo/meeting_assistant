@@ -4,12 +4,14 @@
     display: flex;
     justify-content: center;
     flex-direction: row;
-    overflow-y: scroll;
+    overflow: hidden;
     /* border: 2px solid red; */
 }
 .sidebar{
     height:100%;
     width: 300px;
+    z-index: 10;
+    background-color: white; 
     border: 1px solid black;
     transition: 0.5s;
 }
@@ -24,10 +26,13 @@
 }
 
 .mainframe{
+    position: relative;
     height:100%;
-    border:1px solid black;
+    overflow-y: auto;
+    border:0px solid black;
     padding: 20px 20px;
     flex-grow: 1;
+    flex-direction: column;
 }
 
 .mainframe-header{
@@ -44,8 +49,6 @@
         position: fixed;
         top:0;
         left:0;
-        background-color: white;
-        z-index: 10; 
     }
 
     .mainframe.blur{
