@@ -13,15 +13,15 @@
     margin-bottom: 50px;
     padding-bottom: 0px;
     /* border: 1px solid black; */
-    border-bottom: px solid black;
+    border-bottom: 0px solid black;
 }
 .sibebar-header div{
     display: flex;
-    border: 1px solid black;
+    border: 0px solid black;
 }
 
 .sidebar-features{
-    border: 1px solid black;
+    border: 0px solid black;
     padding: 5px;
     text-indent: 5px;
 }
@@ -35,10 +35,10 @@
 .sidebar-features> div:last-child{
     border-bottom: 0px solid black;
 }
-/* .sidebar-features> div:hover h3 {
+.sidebar-features> div:hover h3 {
     transition: 0.2s;
     text-indent: 20px;
-} */
+}
 .sidebar-features> div>div ul{
     list-style-type: none;
     border: 0px solid black;
@@ -66,5 +66,33 @@
 }
 
 .meeting-creation .new-meeting-icon:hover{
-    font-size: 25px ;
+    transition: 0.4s;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.contact-links{
+    text-align: center;
+    border-top: 1px solid black;
+    margin-top: 50px;
+}
+.contact-links ul{
+    list-style-type: none;
+    border: 0px solid black;
+    padding: 0px;
+}
+.contact-links ul li{
+    border: 0px solid black;
+    padding: 15px;
+}
+
+.contact-links ul li a{
+    color: rgb(60, 59, 59);
+    transition: 0.2s;
+}
+
+
+.contact-links ul li a:hover{
+    text-decoration: underline;
+    font-size: large;
 }

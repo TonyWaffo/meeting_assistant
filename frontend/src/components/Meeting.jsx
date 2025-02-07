@@ -1,7 +1,9 @@
 import { useState,useRef, useEffect } from 'react';
+import {useDispatch,useSelector} from 'react-redux'
 
 import MediaHandler from "./MediaHandler"
 import './Meeting.css'
+import { setActiveMeeting,clearActiveMeeting } from '../redux/meetingHistorySlice';
 
 import { IoSendSharp } from "react-icons/io5";
 
@@ -12,6 +14,14 @@ const Meeting=()=>{
     const [loadingResponse,setLoadingResponse]=useState("");
 
     const queryTextAreaRef=useRef(null);
+
+    const activeMeeting=useSelector((state)=>state.meetingHistory);
+
+    useEffect(()=>{
+        // alert(activeMeeting.topic);
+        // if actuualMeeting.is is not null call the api to get the conversation associated with the id of the active meeting
+        // and then set the conversations to the one found
+    },[activeMeeting])
 
     let conversations=[
         {
