@@ -6,11 +6,13 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL', 'postgresql://dev_user:dev_password@localhost/dev_db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL', 'postgresql://postgres:tony6666@localhost:5432/meeting_assistant')
+    FRONTEND_URL = os.environ.get('DEV_FRONTEND_URL', 'http://localhost:3000')  # Default to dev URL
 
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://prod_user:prod_password@localhost/prod_db')
+    FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')  # Default to dev URL
 
 # Dictionary to easily switch configurations
 config = {

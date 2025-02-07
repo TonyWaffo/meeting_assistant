@@ -1,5 +1,6 @@
 import Sidebar from "../components/Sidebar"
 import Meeting from "../components/Meeting"
+import Authentication from "../components/Authentication";
 import './MeetingAssistant.css'
 
 import { useState } from "react";
@@ -20,6 +21,7 @@ const MeetingAssistant=()=>{
   return (
     <>
       <section className="meeting-assistant">
+        {/* <Authentication/> */}
         <div className={`sidebar ${sidebarVisibility ? "" : "closed"}`}>
            <Sidebar closeSidebar={closeSidebar} sidebarVisibility={sidebarVisibility}/>
         </div>

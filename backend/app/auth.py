@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User
 from app import db
 
@@ -63,3 +63,38 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message": "Logged out successfully"}), 200
+
+@bp.route('/change_password', methods=['POST'])
+@login_required  # Ensure that the user is logged in
+def change_password():
+    data = request.get_json()
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    # Validate current password and new password
+    if not current_password or not new_password:
+        return jsonify({"error": "Current password and new password are required"}), 400
+
+    # Check if the current password matches the user's password
+    if not current_user.check_password(current_password):
+        return jsonify({"error": "Current password is incorrect"}), 400
+
+    # Set the new password
+    current_user.set_password(new_password)
+
+    # Commit the changes to the database
+    db.session.commit()
+
+    return jsonify({"message": "Password updated successfully"}), 200
+
+# New route to check if the user is logged in
+@bp.route('/check_session', methods=['GET'])
+@login_required  # Ensure the user is logged in
+def check_session():
+    return jsonify({
+        "message": "Session is active",
+        "user": {
+            "email": current_user.email,
+            "created_at": current_user.created_at
+        }
+    }), 200
