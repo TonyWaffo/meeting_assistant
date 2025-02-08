@@ -3,6 +3,7 @@ import { useState,useRef, useEffect } from 'react';
 import './MediaHandler.css'
 import useAudioRecorder from '../hooks/useAudioRecorder';
 import { formatTime } from '../utils/timeUtils';
+import { uploadFile } from '../api/meeting';
 
 import { IoAddCircle } from "react-icons/io5";
 import { FaMicrophone } from "react-icons/fa";
@@ -12,8 +13,7 @@ const MediaHandler=()=>{
         audioBlob,
         audioUrl, 
         startRecording, 
-        stopRecording, 
-        saveRecording
+        stopRecording
     }=useAudioRecorder();
     const [duration,setDuration]=useState(0);
     const [inputFile,setInputFile]=useState(null);
@@ -26,6 +26,16 @@ const MediaHandler=()=>{
     const changeFile=(event)=>{
         const file=event.target.files[0];
         setInputFile(file);
+    }
+
+    const processFile=()=>{
+        if (audioBlob) {
+            uploadFile(audioBlob).then((data) => {
+                console.log("Audio uploaded successfully:", data);
+            }).catch((error) => {
+                console.error("Audio upload failed:", error);
+            });
+        }
     }
 
     useEffect(()=>{
@@ -69,14 +79,22 @@ const MediaHandler=()=>{
                     </div>
                 </div> 
 
-                { (audioUrl && !recording) && <a href={audioUrl}>Recording.fich</a>}
+                {audioUrl && !recording && (
+                <div>
+                    <audio controls>
+                    <source src={audioUrl} type="audio/wav" />
+                    Your browser does not support the audio element.
+                    </audio>
+                </div>
+                )}
+                
                 {/* Rounded div pulsing and changing color when on */}
                 {recording && 
                     <span className="recording-timer">{formatTime(duration)}</span>
                 }
             </div>
 
-            <button className="process-audio">Process audio</button>
+            <button className="process-audio" onClick={processFile}>Process audio</button>
             
         </div>
 

@@ -116,8 +116,8 @@ const Meeting=()=>{
                     {/* If there is either a transcript available or a conversation history */}
                     { (transcript || conversations) && conversations?.map((message,index)=>(
                         <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
-                            <span>{message.is_user==true ? "user":"system"}</span>
-                            <b>{message.topic}</b>
+                            <b>{(message.is_user==true ? "user":"system").toUpperCase()}</b><br/>
+                            <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i>
                             <p>{message.content}</p>
                         </div>
                     ))}

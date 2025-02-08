@@ -38,4 +38,7 @@ def create_app():
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.audio_routes import bp as audio_bp
+    app.register_blueprint(audio_bp)
+
     return app

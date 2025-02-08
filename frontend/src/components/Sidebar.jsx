@@ -8,6 +8,7 @@ import {getMeetings} from '../api/meeting'
 
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { FaPenToSquare } from "react-icons/fa6";
+import { FaRegUserCircle } from "react-icons/fa";
 
 const Sidebar=({closeSidebar,sidebarVisibility})=>{
     const dispatch=useDispatch();
@@ -57,13 +58,14 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
                 </div>
             </div>
             <div className="sidebar-features">
-                <div className="login-option">
-                    <h3 onClick={openAuthenticationPopup}>Login</h3>
+                <div className="login-option" onClick={openAuthenticationPopup}>
+                    <h3>Login</h3>
+                    <FaRegUserCircle className="icon" size={20}/>
                 </div>
 
-                <div className="meeting-creation">
+                <div className="meeting-creation" onClick={clearActiveMeetingView } >
                     <h3>New meeting</h3>
-                    <FaPenToSquare className="new-meeting-icon" size={20} onClick={clearActiveMeetingView } />
+                    <FaPenToSquare className="icon" size={20}/>
                 </div>
 
                 <div className="history-option">

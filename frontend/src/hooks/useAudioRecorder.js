@@ -11,6 +11,9 @@ const useAudioRecorder = () => {
 
   // Start recording audio
   const startRecording = async () => {
+    // Clear the previous audio URL and blob when starting a new recording
+    setAudioUrl(null);
+    setAudioBlob(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -41,17 +44,7 @@ const useAudioRecorder = () => {
     }
   };
 
-  // Save the recorded audio to a file
-  const saveRecording = () => {
-    if (audioBlob) {
-      const a = document.createElement('a');
-      a.href = audioUrl;
-      a.download = 'recording.wav';
-      a.click();
-    }
-  };
-
-  return { recording, audioBlob, audioUrl, startRecording, stopRecording, saveRecording };
+  return { recording, audioBlob, audioUrl, startRecording, stopRecording };
 };
 
 export default useAudioRecorder;

@@ -25,6 +25,8 @@
     margin-top: 50px;
     padding-bottom: 10px;
     flex-grow:1;
+    width: calc(70% + 150px);
+    align-self: center;
 }
 
 .meeting-content .conversation{
@@ -128,5 +130,14 @@
 @media screen and (max-width:900px) {
     .meeting-wrapper {
         padding: 0px 10%;
+    }
+}
+
+@media screen and (max-width:500px) {
+    .meeting-content {
+        width: 100%;
+    }
+    .query-container{
+        width: 90%;
     }
 }

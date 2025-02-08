@@ -33,16 +33,6 @@ def get_meeting(meeting_id):
         } for m in messages]
     }), 200
 
-# Route to upload a file (e.g., a meeting transcript)
-@bp.route('/upload', methods=['POST'])
-@login_required
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    # Process the file and extract transcript
-    # For now, just return a placeholder
-    return jsonify({"message": "File uploaded successfully", "transcript": "Sample transcript"}), 200
 
 # Send message after creating a meeting (if it doesn't exist) or send a message to an existing meeting
 @bp.route('/meeting/message', methods=['POST'])
@@ -97,3 +87,29 @@ def send_message():
             }]
         }
     }), 201
+
+
+@bp.route('/send-transcript', methods=['POST'])
+@login_required
+def upload_transcript():
+    data = request.json
+    transcript = data.get('transcript')
+    meeting_id = data.get('meetingId')
+
+    if not transcript or not meeting_id:
+        return jsonify({'error': 'Missing transcript or meetingId'}), 400
+
+    # Check if the meeting exists
+    meeting = Meeting.query.get(meeting_id)
+    if not meeting:
+        return jsonify({'error': 'Meeting not found'}), 404
+
+    # Check if the meeting is associated with the current user (if needed)
+    if meeting.user_id != current_user.id:
+        return jsonify({'error': 'You are not authorized to update this meeting'}), 403
+
+    # Process the transcript, save it to the meeting
+    meeting.transcript = transcript
+    db.session.commit()
+
+    return jsonify({'message': 'Transcript uploaded successfully'}), 200

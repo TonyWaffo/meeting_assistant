@@ -88,3 +88,28 @@ export const uploadFile = async (file) => {
     throw error;
   }
 };
+
+// Send the transcript to the backend for a meeting
+export const sendTranscript = async (transcript, meetingId) => {
+  try {
+    const response = await fetch(`${API_URL}/send-transcript`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ transcript, meetingId }),
+      credentials: 'include',  // Include cookies in the request for session management
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to send transcript');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Send transcript failed:', error.message);
+    throw error;
+  }
+};
+
