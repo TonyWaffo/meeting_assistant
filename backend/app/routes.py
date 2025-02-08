@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
+from datetime import datetime
 from app.models import Meeting, Message
 from app import db
 
@@ -55,9 +56,18 @@ def send_message():
             return jsonify({"error": "Unauthorized"}), 403
     else:
         # If no meeting ID is provided, create a new meeting
-        meeting = Meeting(topic="New Meeting", user_id=current_user.id)
+        meeting = Meeting(topic="Temporary", user_id=current_user.id)
         db.session.add(meeting)
-        db.session.commit()  # Save the meeting to get an ID
+        db.session.flush()  # This assigns an ID before committing
+
+        # # Get current date and time
+        # now = datetime.now()
+        # formatted_datetime = now.strftime("%-d-%d-%m-%Y_%H:%M")  # Format: d-dd-mm-yyyy_hh:mm
+
+        # Set the topic to the meeting ID
+        meeting.topic = f"Meeting {meeting.id}"
+
+        db.session.commit()
 
     # Create a new message from the user in the (new or existing) meeting
     user_message = Message(content=content, is_user=True, topic=topic, meeting_id=meeting.id)
