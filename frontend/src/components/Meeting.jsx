@@ -4,57 +4,80 @@ import {useDispatch,useSelector} from 'react-redux'
 import MediaHandler from "./MediaHandler"
 import './Meeting.css'
 import { setActiveMeeting,clearActiveMeeting } from '../redux/meetingHistorySlice';
+import { sendMessage,getMeetingDetails } from '../api/meeting';
 
 import { IoSendSharp } from "react-icons/io5";
 
 const Meeting=()=>{
     const [file,setFile]=useState("");
     const [transcript,setTranscript]=useState("jgh");
-    const [conversationHistory,setConversationHistory]=useState(null);
+    const [conversations,setConversations]=useState(null);
     const [loadingResponse,setLoadingResponse]=useState("");
+    const [messageContent, setMessageContent] = useState(""); // New state for message input
 
     const queryTextAreaRef=useRef(null);
 
     const activeMeeting=useSelector((state)=>state.meetingHistory);
 
-    useEffect(()=>{
-        // alert(activeMeeting.topic);
-        // if actuualMeeting.is is not null call the api to get the conversation associated with the id of the active meeting
-        // and then set the conversations to the one found
-    },[activeMeeting])
+    useEffect(() => {
+        // Fetch conversation history if there is an active meeting
+        const fetchMeetingDetails = async () => {
+          if (activeMeeting.id) {
+            try {
+              const details = await getMeetingDetails(activeMeeting.id);
+              console.log(details)
+            //   setConversations(details.conversations || []); // Set the conversation history
+            //   setTranscript(details.transcript || ""); // Set transcript if available
+            } catch (error) {
+              console.error('Error fetching meeting details:', error);
+            }
+          }
+        };
+    //     "id": meeting.id,
+    //     "topic": meeting.topic,
+    //     "transcript": meeting.transcript,
+    //     "messages": [{
+    //         "content": m.content,
+    //         "is_user": m.is_user,
+    //         "created_at": m.created_at.isoformat()  # Add created_at in ISO format
+    //     } for m in messages]
+    // }), 200
+    
+        fetchMeetingDetails();
+    }, [activeMeeting]);
 
-    let conversations=[
-        {
-            speaker:'user',
-            subject:"Transcription",
-            content:"hhjijijlj"
-        },
-        {
-            speaker:'system',
-            subject:"Transcription",
-            content:".... ,nk.mk...."
-        },
-        {
-            speaker:'user',
-            subject:"Summary",
-            content:"jhjjijk"
-        },
-        {
-            speaker:'system',
-            subject:"Summary",
-            content:"...jnjlkjhkhkjhkhkhbkbhbhjbjhbjhbjhbjhbhjb....."
-        },
-        {
-            speaker:'user',
-            subject:"Q&A",
-            content:"ohhjohuhiuhiug"
-        },
-        {
-            speaker:'system',
-            subject:"Q&A",
-            content:"........"
-        },
-    ]
+    // let conversations=[
+    //     {
+    //         speaker:'user',
+    //         subject:"Transcription",
+    //         content:"hhjijijlj"
+    //     },
+    //     {
+    //         speaker:'system',
+    //         subject:"Transcription",
+    //         content:".... ,nk.mk...."
+    //     },
+    //     {
+    //         speaker:'user',
+    //         subject:"Summary",
+    //         content:"jhjjijk"
+    //     },
+    //     {
+    //         speaker:'system',
+    //         subject:"Summary",
+    //         content:"...jnjlkjhkhkjhkhkhbkbhbhjbjhbjhbjhbjhbhjb....."
+    //     },
+    //     {
+    //         speaker:'user',
+    //         subject:"Q&A",
+    //         content:"ohhjohuhiuhiug"
+    //     },
+    //     {
+    //         speaker:'system',
+    //         subject:"Q&A",
+    //         content:"........"
+    //     },
+    // ]
 
     const handleInputChange=(event)=>{
         const textArea=queryTextAreaRef.current;
@@ -63,6 +86,22 @@ const Meeting=()=>{
             textArea.style.height="200px";
         }
     }
+
+    const handleSendMessage = async () => {
+        if (!messageContent.trim()) return; // Don't send empty messages
+
+        setLoadingResponse(true); // Show loading while sending
+
+        try {
+            const topic = activeMeeting.topic || 'transcription'; // Default to 'transcription' if topic is not set
+            await sendMessage(messageContent, activeMeeting.id, topic);
+            setMessageContent(""); // Clear message input after sending
+        } catch (error) {
+            console.error('Error sending message:', error);
+        } finally {
+            setLoadingResponse(false); // Hide loading
+        }
+    };
 
     /**
      * Create a useEffect hooks that upload the meeting content based on the
@@ -85,13 +124,13 @@ const Meeting=()=>{
                 {/* Only available when audio file is selected and trancribed button is pressed and when summary or text present in the history */}
                 <div className="meeting-content">
                     {/* if no transcript and no transcript */}
-                    {(!transcript && !conversationHistory) && <p>Process your file upload or meeting record </p>}
+                    {(!transcript && !conversations) && <p>Process your file upload or meeting record </p>}
 
                     {/* if there is a file or histiry being processed, implement a spinning animation */}
                     
 
                     {/* If there is either a transcript available or a conversation history */}
-                    { (transcript || conversationHistory) && conversations.map((conversation,index)=>(
+                    { (transcript || conversations) && conversations?.map((conversation,index)=>(
                         <div className={`conversation ${conversation.speaker=="system" ? "system":"user"}`}>
                             <span>{conversation.speaker}</span>
                             <b>{conversation.subject}</b>
@@ -106,7 +145,9 @@ const Meeting=()=>{
             <div className="query-container"> 
                 <textarea className="query-input" 
                     ref={queryTextAreaRef} 
-                    onChange={handleInputChange}
+                    value={messageContent}
+                    onInput={handleInputChange}
+                    onChange={(e) => setMessageContent(e.target.value)}
                     placeholder='Posez une question sur le meeting'>
 
                 </textarea>
@@ -121,7 +162,9 @@ const Meeting=()=>{
                                 <button>Resumer</button>
                             </div>
                             <div>
-                                <IoSendSharp size={30} /> {/* sending icon is grayed out if the text area is empty or the response is loading */}
+                                <IoSendSharp size={30}
+                                    onClick={handleSendMessage}
+                                 /> {/* sending icon is grayed out if the text area is empty or the response is loading */}
                             </div>
                         </div>
                     }

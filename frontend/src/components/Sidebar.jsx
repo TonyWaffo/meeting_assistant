@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {useDispatch} from 'react-redux'
 
 import './Sidebar.css'
 import { setActiveMeeting,clearActiveMeeting } from '../redux/meetingHistorySlice';
+import {getMeetings} from '../api/meeting'
 
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { FaPenToSquare } from "react-icons/fa6";
@@ -10,20 +11,38 @@ import { FaPenToSquare } from "react-icons/fa6";
 const Sidebar=({closeSidebar,sidebarVisibility})=>{
     const dispatch=useDispatch();
 
-    let meetingHistory=[
-        {
-            id:1,
-            topic:'Topic 1111111111111111111111111111111111111111111',
-        },
-        {
-            id:2,
-            topic:'Topic 2',
-        },
-        {
-            id:3,
-            topic:'Topic 3',
+    // let meetingHistory=[
+    //     {
+    //         id:1,
+    //         topic:'Topic 1111111111111111111111111111111111111111111',
+    //     },
+    //     {
+    //         id:2,
+    //         topic:'Topic 2',
+    //     },
+    //     {
+    //         id:3,
+    //         topic:'Topic 3',
+    //     }
+    // ];
+    const [meetingHistory, setMeetingHistory] = useState([]);
+
+    // Fetch meetings from API on component mount
+    useEffect(() => {
+        const fetchMeetingHistory = async () => {
+        try {
+            const meetings = await getMeetings();  // Fetch meetings from the API
+            setMeetingHistory(meetings);  // Update the meeting history state
+            if(meetings.length==0){
+                createMeeting();
+            }
+        } catch (error) {
+            console.error('Error fetching meeting history:', error);
         }
-    ];
+        };
+
+        fetchMeetingHistory();  // Call the function to load meetings
+    }, []);  // Empty dependency array to run only on mount
 
     const selectMeeting=(meeting)=>{
         //call the useDispatch to set the conversation history thanks to the id selected

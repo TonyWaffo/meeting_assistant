@@ -1,4 +1,4 @@
-// src/api/auth.js
+// src/auth.js
 
 // Use the API URL from environment variables
 const API_URL = import.meta.env.VITE_API_URL;  // This gets the value from .env or .env.production
@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;  // This gets the value from .env 
 // Register user
 export const registerUser = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export const registerUser = async (email, password) => {
 // Login user
 export const loginUser = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const loginUser = async (email, password) => {
 // Logout user
 export const logoutUser = async () => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/logout`, {
+    const response = await fetch(`${API_URL}/auth/logout`, {
       method: 'GET',
       credentials: 'include',  // Send cookies across origins
     });
@@ -82,7 +82,7 @@ export const logoutUser = async () => {
 // Change password
 export const changePassword = async (currentPassword, newPassword) => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/change_password`, {
+    const response = await fetch(`${API_URL}/auth/change_password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -21,7 +21,7 @@ const MeetingAssistant=()=>{
   return (
     <>
       <section className="meeting-assistant">
-        {/* <Authentication/> */}
+        <Authentication/>
         <div className={`sidebar ${sidebarVisibility ? "" : "closed"}`}>
            <Sidebar closeSidebar={closeSidebar} sidebarVisibility={sidebarVisibility}/>
         </div>
