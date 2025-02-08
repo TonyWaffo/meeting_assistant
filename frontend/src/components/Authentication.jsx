@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { registerUser, loginUser, logoutUser, checkSession } from '../api/auth';
+import { clearActiveMeeting } from '../redux/meetingHistorySlice';
 
 const Authentication = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -7,6 +9,8 @@ const Authentication = () => {
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const dispatch=useDispatch();
 
   // Check session on mount
   useEffect(() => {
@@ -40,6 +44,8 @@ const Authentication = () => {
     } catch (error) {
       setErrorMessage(error.message);
     }
+
+    dispatch(clearActiveMeeting());
   };
 
   // Handle logout
@@ -51,6 +57,8 @@ const Authentication = () => {
     } catch (error) {
       setErrorMessage(error.message);
     }
+
+    dispatch(clearActiveMeeting());
   };
 
   return (

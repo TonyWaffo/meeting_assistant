@@ -106,7 +106,7 @@ export const changePassword = async (currentPassword, newPassword) => {
 // Helper to check if the user is logged in
 export const checkSession = async () => {
   try {
-    const response = await fetch(`${API_URL}/check_session`, {
+    const response = await fetch(`${API_URL}/auth/check_session`, {
       method: 'GET',
       credentials: 'include',  // Send cookies across origins
     });

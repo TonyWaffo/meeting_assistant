@@ -4,11 +4,13 @@ import {useDispatch,useSelector} from 'react-redux'
 import MediaHandler from "./MediaHandler"
 import './Meeting.css'
 import { setActiveMeeting,clearActiveMeeting } from '../redux/meetingHistorySlice';
+//update the meeting history and the active meeting
 import { sendMessage,getMeetingDetails } from '../api/meeting';
 
 import { IoSendSharp } from "react-icons/io5";
 
 const Meeting=()=>{
+    const dispatch=useDispatch()
     const [file,setFile]=useState("");
     const [transcript,setTranscript]=useState("jgh");
     const [conversations,setConversations]=useState(null);
@@ -16,68 +18,37 @@ const Meeting=()=>{
     const [messageContent, setMessageContent] = useState(""); // New state for message input
 
     const queryTextAreaRef=useRef(null);
+    const messagesEndRef=useRef(null)
 
     const activeMeeting=useSelector((state)=>state.meetingHistory);
 
-    useEffect(() => {
-        // Fetch conversation history if there is an active meeting
-        const fetchMeetingDetails = async () => {
-          if (activeMeeting.id) {
+
+    // Function to fetch meeting details (conversation & transcript)
+    const fetchMeetingDetails = async () => {
+        if (activeMeeting.id) {
             try {
-              const details = await getMeetingDetails(activeMeeting.id);
-              console.log(details)
-            //   setConversations(details.conversations || []); // Set the conversation history
-            //   setTranscript(details.transcript || ""); // Set transcript if available
+                const details = await getMeetingDetails(activeMeeting.id);
+                setConversations(details.messages || []);
+                setTranscript(details.transcript || "");
             } catch (error) {
-              console.error('Error fetching meeting details:', error);
+                console.error("Error fetching meeting details:", error);
             }
-          }
-        };
-    //     "id": meeting.id,
-    //     "topic": meeting.topic,
-    //     "transcript": meeting.transcript,
-    //     "messages": [{
-    //         "content": m.content,
-    //         "is_user": m.is_user,
-    //         "created_at": m.created_at.isoformat()  # Add created_at in ISO format
-    //     } for m in messages]
-    // }), 200
-    
+        }else{
+            setConversations([]);
+            setTranscript("");
+        }
+    };
+
+    useEffect(() => {
         fetchMeetingDetails();
     }, [activeMeeting]);
 
-    // let conversations=[
-    //     {
-    //         speaker:'user',
-    //         subject:"Transcription",
-    //         content:"hhjijijlj"
-    //     },
-    //     {
-    //         speaker:'system',
-    //         subject:"Transcription",
-    //         content:".... ,nk.mk...."
-    //     },
-    //     {
-    //         speaker:'user',
-    //         subject:"Summary",
-    //         content:"jhjjijk"
-    //     },
-    //     {
-    //         speaker:'system',
-    //         subject:"Summary",
-    //         content:"...jnjlkjhkhkjhkhkhbkbhbhjbjhbjhbjhbjhbhjb....."
-    //     },
-    //     {
-    //         speaker:'user',
-    //         subject:"Q&A",
-    //         content:"ohhjohuhiuhiug"
-    //     },
-    //     {
-    //         speaker:'system',
-    //         subject:"Q&A",
-    //         content:"........"
-    //     },
-    // ]
+    useEffect(()=>{
+        if(messagesEndRef.current){
+            messagesEndRef.current.scrollIntoView({behavior:"smooth"});
+        }
+    },[conversations])
+
 
     const handleInputChange=(event)=>{
         const textArea=queryTextAreaRef.current;
@@ -88,14 +59,27 @@ const Meeting=()=>{
     }
 
     const handleSendMessage = async () => {
+        /**
+         * checck if the user is logged in , otherwise, show th elogin popup
+         */
         if (!messageContent.trim()) return; // Don't send empty messages
 
         setLoadingResponse(true); // Show loading while sending
 
         try {
-            const topic = activeMeeting.topic || 'transcription'; // Default to 'transcription' if topic is not set
-            await sendMessage(messageContent, activeMeeting.id, topic);
-            setMessageContent(""); // Clear message input after sending
+            const topic = "question_answer" || 'transcription'; // Default to 'transcription' if topic is not set
+            const response = await sendMessage(messageContent, activeMeeting.id, topic);
+        
+            // If it's a new meeting, update the active meeting
+            if (response.meeting && response.meeting.id !== activeMeeting.id) {
+                dispatch(setActiveMeeting(response.meeting));  // Update Redux state
+            }
+
+            setMessageContent("");
+
+            // Fetch updated messages from the backend (including system response)
+            fetchMeetingDetails();
+
         } catch (error) {
             console.error('Error sending message:', error);
         } finally {
@@ -117,7 +101,7 @@ const Meeting=()=>{
       <>
           <section className="meeting-section">
             <div className='meeting-wrapper'>
-            <h2>Your meeting assistant</h2>
+                <h2>Your meeting assistant</h2>
                 {/*This part is ony viewable when the user create a new recording, not available in history and if the audio hasn't been processed yet*/}
                 <MediaHandler/>
 
@@ -130,13 +114,14 @@ const Meeting=()=>{
                     
 
                     {/* If there is either a transcript available or a conversation history */}
-                    { (transcript || conversations) && conversations?.map((conversation,index)=>(
-                        <div className={`conversation ${conversation.speaker=="system" ? "system":"user"}`}>
-                            <span>{conversation.speaker}</span>
-                            <b>{conversation.subject}</b>
-                            <p>{conversation.content}</p>
+                    { (transcript || conversations) && conversations?.map((message,index)=>(
+                        <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
+                            <span>{message.is_user==true ? "user":"system"}</span>
+                            <b>{message.topic}</b>
+                            <p>{message.content}</p>
                         </div>
                     ))}
+                    <div ref={messagesEndRef} /> {/* Scroll target */}
 
                 </div>
             </div>

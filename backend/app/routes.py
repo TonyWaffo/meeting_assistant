@@ -28,6 +28,7 @@ def get_meeting(meeting_id):
         "messages": [{
             "content": m.content,
             "is_user": m.is_user,
+            "topic":    m.topic,
             "created_at": m.created_at.isoformat()  # Add created_at in ISO format
         } for m in messages]
     }), 200
