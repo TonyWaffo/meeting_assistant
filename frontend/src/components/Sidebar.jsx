@@ -3,6 +3,7 @@ import {useDispatch,useSelector} from 'react-redux'
 
 import './Sidebar.css'
 import { setActiveMeeting,clearActiveMeeting } from '../redux/meetingHistorySlice';
+import { openAuthentication,closeAuthentication } from '../redux/authenticationSlice';
 import {getMeetings} from '../api/meeting'
 
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
@@ -38,7 +39,12 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
 
     const clearActiveMeetingView =()=>{
         // Reset the active meeting state in Redux to null
-        dispatch(clearActiveMeeting())
+        dispatch(clearActiveMeeting());
+    }
+
+    // Open the authentication popup box
+    const openAuthenticationPopup=()=>{
+        dispatch(openAuthentication());
     }
 
     return (
@@ -52,7 +58,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
             </div>
             <div className="sidebar-features">
                 <div className="login-option">
-                    <h3>Login</h3>
+                    <h3 onClick={openAuthenticationPopup}>Login</h3>
                 </div>
 
                 <div className="meeting-creation">

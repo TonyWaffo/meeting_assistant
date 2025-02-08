@@ -1,14 +1,18 @@
 import Sidebar from "../components/Sidebar"
 import Meeting from "../components/Meeting"
 import Authentication from "../components/Authentication";
+import { openAuthentication,closeAuthentication } from "../redux/authenticationSlice";
 import './MeetingAssistant.css'
 
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
 
 const MeetingAssistant=()=>{
   const [sidebarVisibility,setSidebarVisibility]=useState(false);
+
+  const isAuthenticationPopupOpen=useSelector((state)=>state.authentication.isOpen);
 
   const closeSidebar=()=>{
     setSidebarVisibility(false);
@@ -20,8 +24,8 @@ const MeetingAssistant=()=>{
 
   return (
     <>
-      <section className="meeting-assistant">
-        <Authentication/>
+      <Authentication />
+      <section className={`meeting-assistant ${isAuthenticationPopupOpen ? "blur" : ""}`}>
         <div className={`sidebar ${sidebarVisibility ? "" : "closed"}`}>
            <Sidebar closeSidebar={closeSidebar} sidebarVisibility={sidebarVisibility}/>
         </div>
