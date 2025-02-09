@@ -11,7 +11,7 @@ bp = Blueprint('main', __name__)
 @login_required
 def get_meetings():
     meetings = current_user.meetings.all()
-    return jsonify([{"id": m.id, "topic": m.topic} for m in meetings]), 200
+    return jsonify([{"id": m.id, "topic": m.topic, "transcript":m.transcript} for m in meetings]), 200
 
 # Route to get details of a specific meeting, including messages with created_at
 @bp.route('/meeting/<int:meeting_id>', methods=['GET'])
@@ -84,6 +84,7 @@ def send_message():
         "meeting": {
             "id": meeting.id,
             "topic": meeting.topic,
+            "transcript": meeting.transcript,
             "messages": [{
                 "content": user_message.content,
                 "is_user": user_message.is_user,
@@ -106,20 +107,64 @@ def upload_transcript():
     transcript = data.get('transcript')
     meeting_id = data.get('meetingId')
 
-    if not transcript or not meeting_id:
-        return jsonify({'error': 'Missing transcript or meetingId'}), 400
+    if not transcript:
+        return jsonify({'error': 'Missing transcript'}), 400
 
-    # Check if the meeting exists
-    meeting = Meeting.query.get(meeting_id)
-    if not meeting:
-        return jsonify({'error': 'Meeting not found'}), 404
+    # If no meeting_id is provided, create a new meeting
+    if not meeting_id:
+         # Create a new meeting without a topic initially
+        meeting = Meeting(
+            user_id=current_user.id,  # Associate the meeting with the current user
+            transcript=transcript,
+            topic="Temporary"
+        )
+        
+        # Add the meeting to the session and flush to get the meeting ID
+        db.session.add(meeting)
+        db.session.flush()
 
-    # Check if the meeting is associated with the current user (if needed)
-    if meeting.user_id != current_user.id:
-        return jsonify({'error': 'You are not authorized to update this meeting'}), 403
+        # Set the topic using the meeting ID after it has been assigned
+        meeting.topic = f"Meeting {meeting.id}"
+        db.session.commit()
+    else:
+        # Check if the meeting exists
+        meeting = Meeting.query.get(meeting_id)
+        if not meeting:
+            return jsonify({'error': 'Meeting not found'}), 404
 
-    # Process the transcript, save it to the meeting
-    meeting.transcript = transcript
-    db.session.commit()
+        # Check if the meeting is associated with the current user (if needed)
+        if meeting.user_id != current_user.id:
+            return jsonify({'error': 'You are not authorized to update this meeting'}), 403
 
-    return jsonify({'message': 'Transcript uploaded successfully'}), 200
+        # Process the transcript, save it to the meeting
+        meeting.transcript = transcript
+        db.session.commit()
+
+    # Get the messages related to the meeting
+    user_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=True).all()
+    system_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=False).all()
+
+    # Format the messages
+    user_message_data = [{
+        "content": user_message.content,
+        "is_user": user_message.is_user,
+        "topic": user_message.topic,
+        "created_at": user_message.created_at.isoformat()
+    } for user_message in user_messages]
+
+    system_message_data = [{
+        "content": system_message.content,
+        "is_user": system_message.is_user,
+        "topic": system_message.topic,
+        "created_at": system_message.created_at.isoformat()
+    } for system_message in system_messages]
+
+    return jsonify({
+        "message": "Transcript processed successfully",
+        "meeting": {
+            "id": meeting.id,
+            "topic": meeting.topic,
+            "transcript": meeting.transcript,
+            "messages": user_message_data + system_message_data  # Combine both user and system messages
+        }
+    }), 201

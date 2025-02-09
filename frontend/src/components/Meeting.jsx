@@ -1,4 +1,4 @@
-import { useState,useRef, useEffect } from 'react';
+import { useState,useRef, useEffect, act } from 'react';
 import {useDispatch,useSelector} from 'react-redux'
 
 import MediaHandler from "./MediaHandler"
@@ -29,13 +29,11 @@ const Meeting=()=>{
             try {
                 const details = await getMeetingDetails(activeMeeting.id);
                 setConversations(details.messages || []);
-                setTranscript(details.transcript || "");
             } catch (error) {
                 console.error("Error fetching meeting details:", error);
             }
         }else{
             setConversations([]);
-            setTranscript("");
         }
     };
 
@@ -108,13 +106,13 @@ const Meeting=()=>{
                 {/* Only available when audio file is selected and trancribed button is pressed and when summary or text present in the history */}
                 <div className="meeting-content">
                     {/* if no transcript and no transcript */}
-                    {(!transcript && !conversations) && <p>Process your file upload or meeting record </p>}
+                    {(!activeMeeting.transcript && !conversations) && <p>Process your file upload or meeting record </p>}
 
                     {/* if there is a file or histiry being processed, implement a spinning animation */}
                     
 
                     {/* If there is either a transcript available or a conversation history */}
-                    { (transcript || conversations) && conversations?.map((message,index)=>(
+                    { (activeMeeting.transcript || conversations) && conversations?.map((message,index)=>(
                         <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
                             <b>{(message.is_user==true ? "user":"system").toUpperCase()}</b><br/>
                             <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i>
@@ -133,8 +131,8 @@ const Meeting=()=>{
                     value={messageContent}
                     onInput={handleInputChange}
                     onChange={(e) => setMessageContent(e.target.value)}
-                    placeholder='Posez une question sur le meeting'>
-
+                    disabled={!transcript}
+                    placeholder={transcript ? 'Posez une question sur le meeting' : 'Faites un enregistrement pour utiliser le chat'}>
                 </textarea>
 
                 <div className="query-actions">
@@ -143,13 +141,19 @@ const Meeting=()=>{
                     {!loadingResponse && 
                         <div className='query-buttons'>
                             <div>
-                                <button>Transcription</button>
-                                <button>Resumer</button>
+                                {/* <button
+                                    disabled={!activeMeeting.transcript} // Disable if no transcription
+                                    className={!activeMeeting.transcript ? 'disabled-button' : ''}>Transcription
+                                </button> */}
+                                <button
+                                    disabled={!activeMeeting.transcript} // Disable if no transcription
+                                    className={!activeMeeting.transcript ? 'disabled-button' : ''}>Resumer
+                                </button>
                             </div>
                             <div>
-                                <IoSendSharp size={30}
+                                {activeMeeting.transcript && <IoSendSharp size={30}
                                     onClick={handleSendMessage}
-                                 /> {/* sending icon is grayed out if the text area is empty or the response is loading */}
+                                 />} {/* sending icon is disabled if the text area is empty or the response is loading */}
                             </div>
                         </div>
                     }

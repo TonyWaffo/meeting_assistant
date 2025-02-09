@@ -83,6 +83,10 @@
     border: 0px solid black;
     background-color: rgb(150, 148, 146);
 }
+
+.query-container .query-actions .query-buttons button .disabled-button{
+    cursor: none;
+}
 .query-container .query-actions .query-loading{
     display: flex;
     align-items: center;
