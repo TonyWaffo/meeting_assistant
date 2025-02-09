@@ -131,8 +131,8 @@ const Meeting=()=>{
                     value={messageContent}
                     onInput={handleInputChange}
                     onChange={(e) => setMessageContent(e.target.value)}
-                    disabled={!transcript}
-                    placeholder={transcript ? 'Posez une question sur le meeting' : 'Faites un enregistrement pour utiliser le chat'}>
+                    disabled={!activeMeeting.transcript}
+                    placeholder={activeMeeting.transcript ? 'Posez une question sur le meeting' : 'Faites un enregistrement pour utiliser le chat'}>
                 </textarea>
 
                 <div className="query-actions">
@@ -151,7 +151,7 @@ const Meeting=()=>{
                                 </button>
                             </div>
                             <div>
-                                {activeMeeting.transcript && <IoSendSharp size={30}
+                                {activeMeeting.transcript && <IoSendSharp className='send-icon' size={30}
                                     onClick={handleSendMessage}
                                  />} {/* sending icon is disabled if the text area is empty or the response is loading */}
                             </div>

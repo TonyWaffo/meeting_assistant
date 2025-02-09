@@ -3,6 +3,13 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Meeting, Message
 from app import db
+# from transformers import AutoModelForCausalLM, AutoTokenizer
+# import torch
+
+
+# # Load Qwen model and tokenizer
+# qwen_model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen-7B-Chat", torch_dtype=torch.float16, device_map="auto", trust_remote_code=True)
+# qwen_tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen-7B-Chat", trust_remote_code=True)
 
 bp = Blueprint('main', __name__)
 
@@ -42,7 +49,7 @@ def send_message():
     data = request.get_json()
     content = data.get('content')  # Get the content of the message
     meeting_id = data.get('meeting_id')  # Get the meeting ID (optional, if existing meeting)
-    topic = data.get('topic', 'transcription')  # Get the topic of the message (defaults to 'transcription' if not provided)
+    topic = data.get('topic', 'question_answer')  # Get the topic of the message (defaults to 'question_answer' if not provided)
 
     if not content:
         return jsonify({"error": "Message content is required"}), 400
@@ -73,8 +80,15 @@ def send_message():
     user_message = Message(content=content, is_user=True, topic=topic, meeting_id=meeting.id)
     db.session.add(user_message)
     
-    # Optional: Add an automatic system reply
-    system_message = Message(content="Message received, thank you!", is_user=False, topic="transcription", meeting_id=meeting.id)
+    #  # Generate Qwen response
+    # transcript = meeting.transcript or ""
+    # prompt = f"You are a helpful assistant.\n\nContext:\n{transcript}\n\nUser: {content}\n\nAI:"
+    # inputs = qwen_tokenizer(prompt, return_tensors="pt").to("cpu")
+    # outputs = qwen_model.generate(**inputs, max_length=200)
+    # qwen_response = qwen_tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Store AI response
+    system_message = Message(content="Thank you for chatting with us", is_user=False, topic="transcription", meeting_id=meeting.id)
     db.session.add(system_message)
     
     db.session.commit()  # Commit both the message and the system reply

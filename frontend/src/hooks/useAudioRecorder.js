@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 const useAudioRecorder = () => {
   const [recording, setRecording] = useState(false);
   const [transcribedText, setTranscribedText] = useState("");
   const [recognitionInstance, setRecognitionInstance] = useState(null);
+
+  const activeMeeting=useSelector((state)=>state.meetingHistory)
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -29,6 +32,10 @@ const useAudioRecorder = () => {
       setRecognitionInstance(instance);
     }
   }, []);
+
+  useEffect(()=>{
+    setTranscribedText(activeMeeting.transcript)
+  },[activeMeeting])
 
   const startRecording = () => {
     if (recognitionInstance) {

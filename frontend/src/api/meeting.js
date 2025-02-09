@@ -42,7 +42,7 @@ export const getMeetingDetails = async (meetingId) => {
 };
 
 // Send a message to a meeting
-export const sendMessage = async (content, meetingId = null, topic = 'transcription') => {
+export const sendMessage = async (content, meetingId = null, topic = 'question_answer') => {
   try {
     const response = await fetch(`${API_URL}/meeting/message`, {
       method: 'POST',

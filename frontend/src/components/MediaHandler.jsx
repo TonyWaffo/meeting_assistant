@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSelector,useDispatch } from "react-redux";
 import "./MediaHandler.css";
 import useAudioRecorder from "../hooks/useAudioRecorder";
@@ -55,6 +55,7 @@ const MediaHandler = () => {
     }
   };
 
+
   return (
     <div className="media-handler">
       {/* <div className="media-uploader">
@@ -69,8 +70,10 @@ const MediaHandler = () => {
           {recording ? "Press to stop recording" : "Press to start recording"}
         </span>
         <div className="recorder-button">
-          <div className={`mic-container ${recording ? "pulsing-circle" : ""}`}>
-            <FaMicrophone className="mic-icon" size={30} onClick={recording ? handleStopRecording : startRecording} />
+          <div 
+            className={`mic-container ${recording ? "pulsing-circle" : ""}`}
+            onClick={recording ? handleStopRecording : startRecording}>
+            <FaMicrophone className="mic-icon" size={30} />
           </div>
         </div>
 
