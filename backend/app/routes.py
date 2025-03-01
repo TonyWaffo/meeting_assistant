@@ -10,7 +10,7 @@ import os
 import openai
 
 # OpenAI API Key
-OPENAI_API_KEY= "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"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instance
@@ -24,7 +24,6 @@ client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instan
 #     device = "cpu"  # Default to CPU if neither GPU nor VPU is available
 
 
-HUGGINGFACE_TOKEN='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'
 
 # Load a pre-trained conversational model (Llama)
 # model_name = "mistralai/Mistral-7B-Instruct-v0.2"
