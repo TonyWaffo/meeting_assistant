@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import React from 'react';
 import { useSelector,useDispatch } from "react-redux";
 import "./MediaHandler.css";
 import useAudioRecorder from "../hooks/useAudioRecorder";
@@ -108,7 +109,13 @@ const MediaHandler = () => {
       ):(
         <div className="transcription-result">
           <h3>Transcription</h3>
-          <p>{activeMeeting?.transcript}</p>
+          <p>{activeMeeting?.transcript.split('\n').map((line, index) => (
+            <React.Fragment key={index}>
+              {line}
+              <br />
+              <br/>
+            </React.Fragment>
+          ))}</p>
         </div>
       ) }
 

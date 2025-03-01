@@ -70,6 +70,8 @@ export const uploadFile = async (file, meetingId = null) => {
   try {
       const formData = new FormData();
       formData.append('file', file);
+
+      // Just in case for some reason user can send multiple files
       if (meetingId) {
           formData.append('meetingId', meetingId);
       }
@@ -85,7 +87,11 @@ export const uploadFile = async (file, meetingId = null) => {
           throw new Error(data.error || 'Failed to upload file');
       }
 
-      return await response.json();
+      // Parse the JSON response
+      const data = await response.json();
+
+      // Return the entire 'data' object, now with the formatted 'transcript'
+      return data;
   } catch (error) {
       console.error('Error uploading file:', error.message);
       throw error;

@@ -15,39 +15,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instance
 
-# # Dynamically select the device (GPU, VPU, or CPU)
-# if torch.cuda.is_available():
-#     device = "cuda"  # Use GPU if available
-# elif torch.backends.mps.is_available():  # For Apple Silicon devices (M1, M2) with VPU support
-#     device = "mps"  # Use VPU if available
-# else:
-#     device = "cpu"  # Default to CPU if neither GPU nor VPU is available
-
-
-
-# Load a pre-trained conversational model (Llama)
-# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-# tokenizer = AutoTokenizer.from_pretrained(model_name,token=HUGGINGFACE_TOKEN)
-# qa_model = AutoModelForCausalLM.from_pretrained(model_name,token=HUGGINGFACE_TOKEN)
 
 bp = Blueprint('main', __name__)
 
-
-# def answer_question(context, question):
-#     # Format the input for the model: context followed by the question
-#     prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
-
-#     # Tokenize the prompt and prepare inputs
-#     inputs = tokenizer(prompt, return_tensors="pt").to(device)
-
-#     # Generate a response from the model
-#     generated_ids = qa_model.generate(inputs["input_ids"], max_new_tokens=1000, do_sample=True)
-
-#     # Decode the generated response
-#     generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-
-#     # Return the response
-#     return generated_text
 
 def answer_question(context, question):
     """Use OpenAI's GPT-4 API to answer the question based on the context."""

@@ -1,18 +1,20 @@
 import requests
+import os
+from flask import jsonify
 
-API_KEY = "f27ab6dd-ad78-4071-a179-5be139ad8af3"
+FIREFLIES_API_KEY = os.getenv("FIREFLIES_API_KEY")
 GRAPHQL_URL = "https://api.fireflies.ai/graphql"
 
-def upload_video(url):
+def upload_video(url,meeting_title):
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {FIREFLIES_API_KEY}",
     }
 
     input_data = {
         "webhook": "https://webhook.site/7f7cb514-1424-4214-80b6-96117674eba6",
         "url": f'{url}',
-        "title": "Meeting test",
+        "title": f'{meeting_title}',
         "attendees": [
             {
                 "displayName": "Gaspard",
@@ -42,16 +44,19 @@ def upload_video(url):
 
         if response_data.get("data") and response_data["data"].get("uploadAudio")["success"]:
             print("Video uploaded successfully!")
+            return jsonify({"message": "Video uploaded successfully!"}), 200
         else:
             print("Upload failed:", response_data)
+            return jsonify({"message": "Upload failed", "details": response_data}), 400
 
     except requests.exceptions.RequestException as e:
         print("Upload Error:", e)
+        return jsonify({"message": "Error uploading video", "error": str(e)}), 500
 
 def get_transcript(transcript_id):
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {FIREFLIES_API_KEY}",
     }
 
     data = {
@@ -117,10 +122,16 @@ def get_transcript(transcript_id):
             }
 
             meeting_transcript.append(speaker_sentence)
-            print()
+
+            converted_meeting_transcript=''
+
+            # Convert the array of speech/sentence in a more readable format
+            for speech in meeting_transcript:
+                converted_meeting_transcript+=f'- {speech['speaker']}: {speech['text']}\n'
+
 
         
-        return meeting_summary,meeting_transcript
+        return meeting_summary,converted_meeting_transcript
 
 
     except requests.exceptions.RequestException as e:
@@ -130,7 +141,7 @@ def get_transcript(transcript_id):
 def get_admin_id():
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {FIREFLIES_API_KEY}",
     }
 
     data = {
@@ -156,12 +167,12 @@ def get_admin_id():
             users = response_data['data']['users']
             print("User Information:")
             for user in users:
-                print(f"User Id : {user['user_id']}")
-                print(f"Is admin?: {user['is_admin']}")
-                print(f"Name: {user['name']}")
-                print(f"Integrations: {user['integrations']}")
-                print(f"Number of transcripts: {user['num_transcripts']}")
-                print(f"Recent Meeting: {user['recent_meeting']}")
+                # print(f"User Id : {user['user_id']}")
+                # print(f"Is admin?: {user['is_admin']}")
+                # print(f"Name: {user['name']}")
+                # print(f"Integrations: {user['integrations']}")
+                # print(f"Number of transcripts: {user['num_transcripts']}")
+                # print(f"Recent Meeting: {user['recent_meeting']}")
 
                 if user['is_admin']==True:
                     return user['user_id']
@@ -177,10 +188,10 @@ def get_admin_id():
         print(f"Request Error: {e}")
 
 
-def get_transcripts(user_id,transcriptTitle):
+def get_transcripts(user_id,meeting_title):
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {API_KEY}'
+        'Authorization': f'Bearer {FIREFLIES_API_KEY}'
     }
 
     # Use the user_id dynamically in the variables
@@ -205,13 +216,9 @@ def get_transcripts(user_id,transcriptTitle):
         
         if 'data' in response_data:
             transcripts = response_data['data']['transcripts']
-            print("Transcripts Information:")
+            print("Checking all transcripts...")
             for transcript in transcripts:
-                print(f"Title: {transcript['title']}")
-                print(f"id: {transcript['id']}")
-
-                print(f'{transcriptTitle} vs {transcript['title']}')
-                if transcript['title']==transcriptTitle:
+                if transcript['title']==meeting_title:
                     return transcript['id']
                 
             return None
@@ -223,27 +230,3 @@ def get_transcripts(user_id,transcriptTitle):
     except requests.exceptions.RequestException as e:
         print(f"Request Error: {e}")
 
-if __name__ == "__main__":
-    url="https://drive.google.com/uc?export=download&id=1HeczGIhSUUu-moKfx522KXaRdE_DtrCk"
-    # upload_video(url)
-
-    # print("\nGetting the user id....")
-    # admin_id=get_admin_id()
-
-    # # if not admin_id:
-    # #     return "eroor"
-
-    # print("\nGetting the transcripts....")
-    # transcript_id=get_transcripts(admin_id,"Meeting test")
-
-    # print(transcript_id)
-
-    print("\nGeting  a special transcript....")
-    summary,full_transcript=get_transcript('01JN6G05VA8SVKPVC6NWBWK0RD')
-
-    print('\nSummary',)
-    print(summary)
-
-    print('\n\nTranscripts\n')
-    for sentence in full_transcript:
-        print(f'-{sentence['speaker']}: {sentence['text']}')
