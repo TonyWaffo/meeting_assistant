@@ -1,8 +1,17 @@
 import os
 
+# Define the Upload Folder
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')  # Creates 'uploads' in the project directory
+
+
+# Ensure the upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'you-will-never-guess')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    UPLOAD_FOLDER = UPLOAD_FOLDER
 
 class DevelopmentConfig(Config):
     DEBUG = True

@@ -37,25 +37,35 @@
     border-radius: 5px;
     padding:10px;
 }
+
+input[type="file"] {
+    display: none;
+}
+
 .mic-container{
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid black;
+    border: 0px solid black;
     border-radius: 50%;
     padding: 10px;
     transition: border-width 0.3s ease-in;
     cursor: pointer;
+    box-shadow: 0 0 5px rgb(94, 92, 92);
 }
 
 .recorder-button{
     height:50px;
 }
 .mic-container.pulsing-circle{
-    animation:pulse 1.5s infinite;
+    animation: pulse-glow 1s infinite alternate;
 }
 
-@keyframes pulse {
+.recorder-instruction{
+    text-align: center;
+}
+
+/* @keyframes pulse {
     0%{
         border-width: 1px;
         opacity: 1;
@@ -68,8 +78,7 @@
         border-width: 1px;
         opacity: 1;
     }
-
-}
+} */
 
 .process-audio{
     cursor: pointer;
@@ -81,4 +90,25 @@
     background-color: rgb(129, 129, 129);
     color:white;
     transform: scale(1.05);
+}
+  
+.glowing-button {
+    color:black;
+    animation: pulse-glow 1s infinite alternate;
+}
+.process-audio:hover{
+    cursor:default;
+   color: black;
+}
+
+@keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 5px rgb(94, 92, 92);
+    }
+    50% {
+      box-shadow: 0 0 20px rgb(94, 92, 92);
+    }
+    100% {
+      box-shadow: 0 0 5px rgb(94, 92, 92);
+    }
 }

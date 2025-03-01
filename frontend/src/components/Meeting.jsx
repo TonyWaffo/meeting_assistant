@@ -1,4 +1,4 @@
-import { useState,useRef, useEffect, act } from 'react';
+import { useState,useRef, useEffect } from 'react';
 import {useDispatch,useSelector} from 'react-redux'
 
 import MediaHandler from "./MediaHandler"
@@ -56,17 +56,24 @@ const Meeting=()=>{
         }
     }
 
-    const handleSendMessage = async () => {
+    const handleSendMessage = async (goal='questionAnswer') => {
         /**
          * checck if the user is logged in , otherwise, show th elogin popup
          */
-        if (!messageContent.trim()) return; // Don't send empty messages
+        if (!messageContent.trim() && goal.trim()!='summary') return; // Don't send empty messages
+
+        let message;
+        if(goal=='summary'){
+            message='Faites moi un resume du recit s\'il te plait '
+        }else{
+            message=messageContent;
+        }
 
         setLoadingResponse(true); // Show loading while sending
 
         try {
             const topic = "question_answer" || 'transcription'; // Default to 'transcription' if topic is not set
-            const response = await sendMessage(messageContent, activeMeeting.id, topic);
+            const response = await sendMessage(message, activeMeeting.id, topic);
         
             // If it's a new meeting, update the active meeting
             if (response.meeting && response.meeting.id !== activeMeeting.id) {
@@ -147,12 +154,13 @@ const Meeting=()=>{
                                 </button> */}
                                 <button
                                     disabled={!activeMeeting.transcript} // Disable if no transcription
-                                    className={!activeMeeting.transcript ? 'disabled-button' : ''}>Resumer
+                                    className={!activeMeeting.transcript ? 'disabled-button' : ''}
+                                    onClick={()=>handleSendMessage('summary')}>Resumer
                                 </button>
                             </div>
                             <div>
                                 {activeMeeting.transcript && <IoSendSharp className='send-icon' size={30}
-                                    onClick={handleSendMessage}
+                                    onClick={() => handleSendMessage()}
                                  />} {/* sending icon is disabled if the text area is empty or the response is loading */}
                             </div>
                         </div>

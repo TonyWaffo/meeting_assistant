@@ -1,62 +1,73 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch} from 'react-redux';
+
+import { uploadFile } from "../api/meeting"; // Import your sendTranscript function
+import { setActiveMeeting } from '../redux/meetingHistorySlice';
 
 const useAudioRecorder = () => {
   const [recording, setRecording] = useState(false);
-  const [transcribedText, setTranscribedText] = useState("");
-  const [recognitionInstance, setRecognitionInstance] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
 
-  const activeMeeting=useSelector((state)=>state.meetingHistory)
+  const activeMeeting = useSelector((state) => state.meetingHistory);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const instance = new SpeechRecognition();
-      instance.continuous = true;
-      instance.interimResults = true;
-      instance.lang = 'fr-FR';
+    // Check if the MediaRecorder API is available
+    if (navigator.mediaDevices && MediaRecorder) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+          const recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = (event) => {
+            const blob = event.data;
+            setAudioBlob(blob);
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);  // You can use this URL to play the audio or download it
+          };
 
-      instance.onresult = (event) => {
-        let finalTranscript = '';
-        if (event.results[event.resultIndex].isFinal) {
-          finalTranscript = event.results[event.resultIndex][0].transcript + " ";
-          setTranscribedText((prevText) => prevText + finalTranscript);
-        }
-      };
+          recorder.onstop = async () => {};
 
-      instance.onerror = (event) => {
-        console.error("Speech Recognition Error", event);
-        setTranscribedText("Error occurred during speech recognition");
-      };
-
-      setRecognitionInstance(instance);
+          setMediaRecorder(recorder);
+        })
+        .catch((err) => {
+          console.error('Error accessing microphone', err);
+        });
+    } else {
+      console.error('MediaRecorder not supported in this browser.');
     }
   }, []);
 
-  useEffect(()=>{
-    setTranscribedText(activeMeeting.transcript)
-  },[activeMeeting])
+  useEffect(() => {
+    
+  }, [activeMeeting]);
 
   const startRecording = () => {
-    if (recognitionInstance) {
-      setTranscribedText(""); // Clear previous transcription
-      recognitionInstance.start();
+    if (mediaRecorder) {
+      setAudioBlob(null); // Clear any existing audio
+      mediaRecorder.start();
       setRecording(true);
     }
   };
 
   const stopRecording = () => {
-    if (recognitionInstance) {
-      recognitionInstance.stop();
+    if (mediaRecorder) {
+      mediaRecorder.stop();
       setRecording(false);
     }
   };
 
+  const clearAudioBlobAndUrl = () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+  };
+
   return {
     recording,
-    transcribedText,
     startRecording,
-    stopRecording
+    stopRecording,
+    audioBlob,
+    audioUrl,
+    clearAudioBlobAndUrl,
   };
 };
 

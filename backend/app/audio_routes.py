@@ -1,108 +1,123 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-import wave
-import numpy as np
-from app import db
+from app import db,config
 from app.models import Meeting, Message
-import pyaudio
 import whisper
-from transformers import T5Tokenizer, T5ForConditionalGeneration
-import torch
+from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline, AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+import librosa
+import io
+import os
+import time
+from werkzeug.utils import secure_filename
 
-# Initialize models
-device = "cuda" if torch.cuda.is_available() else "cpu"
-whisper_model = whisper.load_model("small",device=device)
-tokenizer = T5Tokenizer.from_pretrained("t5-small")
-qa_model = T5ForConditionalGeneration.from_pretrained("t5-small")
 
-# Audio Settings
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 48000
-FRAME_DURATION = 10
-FRAME_SIZE = int(RATE * FRAME_DURATION / 1000)
-TEMP_AUDIO_FILE = "temp_audio_chunk.wav"
 
-# Initialize PyAudio
-audio = pyaudio.PyAudio()
+# Load the Whisper model (you can change to 'small', 'medium', 'large' based on your needs)
+whisper_model = whisper.load_model("large")
+
 
 bp = Blueprint('audio', __name__)
 
-def save_chunk_to_file(audio_chunk):
-    """Saves an audio chunk to a WAV file for processing."""
-    with wave.open(TEMP_AUDIO_FILE, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(audio.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(audio_chunk)
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a'}
 
-def transcribe_audio(audio_chunk):
-    """Transcribes an audio chunk using Whisper."""
-    save_chunk_to_file(audio_chunk)
-    segments, _ = whisper_model.transcribe(TEMP_AUDIO_FILE)
-    return " ".join(segment.text for segment in segments)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def answer_question(context, question):
-    """Generates an answer based on transcribed text using T5 model."""
-    prompt = f"question: {question}  context: {context}"
-    inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
-    output = qa_model.generate(**inputs, max_length=100)
-    return tokenizer.decode(output[0], skip_special_tokens=True)
+def transcribe_audio(audio_file):
+    # Create a unique file name using timestamp or UUID
+    unique_filename = f"{int(time.time())}_{current_user.email}_{secure_filename(audio_file.filename)}"
 
-# Route to upload an audio file, transcribe it, and create a meeting
+
+    # Instead of loading from the in-memory file, use the saved file path
+    file_path = os.path.join('uploads', unique_filename)
+
+    audio_file.save(file_path)
+
+    # Transcribe the audio file
+    result = whisper_model.transcribe(file_path)
+    return result["text"]
+
+
+# Route to upload an audio file and create a meeting if needed
 @bp.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
-    file = request.files['file']
-    audio_chunk = file.read()
+    audio_file = request.files['file']
 
-    # Transcribe the uploaded audio
-    transcript = transcribe_audio(audio_chunk)
+    if audio_file.filename == '' or not allowed_file(audio_file.filename):
+        return jsonify({"error": "Invalid file format"}), 400
 
-    # Deriving the topic from the first few words of the transcript
-    topic = " ".join(transcript.split()[:5])  # First 5 words as topic (you can adjust this logic)
+    try:
+        # Transcribe the uploaded audio
+        transcript = transcribe_audio(audio_file)
 
-    # Create a new meeting in the database
-    new_meeting = Meeting(
-        topic=topic,
-        transcript=transcript,
-        user_id=current_user.id  # Assuming the user is logged in and you want to associate the meeting with the current user
-    )
+        # Check if a meeting ID was provided
+        meeting_id = request.form.get('meetingId')
+        
+        if not meeting_id:
+            # Create a new meeting without a topic initially
+            meeting = Meeting(
+                user_id=current_user.id,  # Associate the meeting with the current user
+                transcript=transcript,
+                topic="Temporary"
+            )
+            
+            # Add the meeting to the session and flush to get the meeting ID
+            db.session.add(meeting)
+            db.session.flush()
 
-    # Add the meeting to the session and commit to save it in the database
-    db.session.add(new_meeting)
-    db.session.commit()
+            # Set the topic using the meeting ID after it has been assigned
+            meeting.topic = f"Meeting {meeting.id}"
+        else:
+            # Check if the meeting exists
+            meeting = Meeting.query.get(meeting_id)
+            if not meeting:
+                return jsonify({'error': 'Meeting not found'}), 404
 
-    return jsonify({"message": "File uploaded successfully", "transcript": transcript, "meeting_id": new_meeting.id}), 200
+            # Check if the meeting is associated with the current user (if needed)
+            if meeting.user_id != current_user.id:
+                return jsonify({'error': 'You are not authorized to update this meeting'}), 403
 
-# Route to send a question and get an answer based on the transcribed text
-@bp.route('/answer', methods=['POST'])
-@login_required
-def answer():
-    data = request.get_json()
-    question = data.get('question')  # Question from the user
-    meeting_id = data.get('meeting_id')  # Meeting ID from the user
+            # Process the transcript, save it to the meeting
+            meeting.transcript = transcript
+        
+        db.session.commit()
 
-    if not question or not meeting_id:
-        return jsonify({"error": "Both question and meeting_id are required"}), 400
+        # Get the messages related to the meeting
+        user_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=True).all()
+        system_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=False).all()
 
-    # Fetch the meeting transcript from the database using the meeting_id
-    meeting = Meeting.query.get(meeting_id)
-    
-    if not meeting:
-        return jsonify({"error": "Meeting not found"}), 404
+        # Format the messages
+        user_message_data = [{
+            "content": msg.content,
+            "is_user": msg.is_user,
+            "topic": msg.topic,
+            "created_at": msg.created_at.isoformat()
+        } for msg in user_messages]
 
-    transcript = meeting.transcript  # Assuming 'transcript' is a column in the Meeting model
-    
-    if not transcript:
-        return jsonify({"error": "Transcript not available for this meeting"}), 404
+        system_message_data = [{
+            "content": msg.content,
+            "is_user": msg.is_user,
+            "topic": msg.topic,
+            "created_at": msg.created_at.isoformat()
+        } for msg in system_messages]
 
-    # Generate the answer based on the transcript and question
-    answer_text = answer_question(transcript, question)
-    
-    return jsonify({"answer": answer_text}), 200
+        return jsonify({
+            "message": "File uploaded and transcript processed successfully",
+            "meeting": {
+                "id": meeting.id,
+                "topic": meeting.topic,
+                "transcript": meeting.transcript,
+                "messages": user_message_data + system_message_data  # Combine both user and system messages
+            }
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
