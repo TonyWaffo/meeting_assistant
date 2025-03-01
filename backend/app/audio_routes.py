@@ -9,6 +9,8 @@ import whisper
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch
 
+from fireflies import upload_video,get_admin_id,get_transcripts,get_transcript
+
 # Initialize models
 device = "cuda" if torch.cuda.is_available() else "cpu"
 whisper_model = whisper.load_model("small",device=device)
@@ -36,11 +38,6 @@ def save_chunk_to_file(audio_chunk):
         wf.setframerate(RATE)
         wf.writeframes(audio_chunk)
 
-def transcribe_audio(audio_chunk):
-    """Transcribes an audio chunk using Whisper."""
-    save_chunk_to_file(audio_chunk)
-    segments, _ = whisper_model.transcribe(TEMP_AUDIO_FILE)
-    return " ".join(segment.text for segment in segments)
 
 def answer_question(context, question):
     """Generates an answer based on transcribed text using T5 model."""
@@ -48,6 +45,7 @@ def answer_question(context, question):
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     output = qa_model.generate(**inputs, max_length=100)
     return tokenizer.decode(output[0], skip_special_tokens=True)
+
 
 # Route to upload an audio file, transcribe it, and create a meeting
 @bp.route('/upload', methods=['POST'])
@@ -59,16 +57,35 @@ def upload_file():
     file = request.files['file']
     audio_chunk = file.read()
 
-    # Transcribe the uploaded audio
-    transcript = transcribe_audio(audio_chunk)
+    # Save video to the google drive or the server
+
+    # Grab the url of the video saved in the server
+    url=''
+
+    # Upload video to fireflies for processing
+    upload_video(url)
+
+    # Get the ID of the administrator
+    admin_id=get_admin_id()
+
+    #Create a meeting ID
+    meeting_id="Meeting test"
+
+    # Get the id associated to the admin account  and the identifier of the actual meeting(MeetingId)
+    transcript_id=get_transcripts(admin_id,meeting_id)
+
+    print("\nGeting  a special transcript....")
+    summary,full_transcript=get_transcript(transcript_id)
+
+    full_transcript
 
     # Deriving the topic from the first few words of the transcript
-    topic = " ".join(transcript.split()[:5])  # First 5 words as topic (you can adjust this logic)
+    topic = " ".join(full_transcript.split()[:5])  # First 5 words as topic (you can adjust this logic)
 
     # Create a new meeting in the database
     new_meeting = Meeting(
         topic=topic,
-        transcript=transcript,
+        transcript=full_transcript,
         user_id=current_user.id  # Assuming the user is logged in and you want to associate the meeting with the current user
     )
 
