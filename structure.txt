@@ -22,3 +22,6 @@
   │
   ├── App.jsx                # Main App component
   ├── main.jsx               # Entry point
+
+
+  I had to install ffmpeg and put it in my envrironment variables

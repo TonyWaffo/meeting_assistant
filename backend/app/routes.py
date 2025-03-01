@@ -3,15 +3,72 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Meeting, Message
 from app import db
+from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline, AutoModelForCausalLM, AutoTokenizer
+import torch
+import os
+
+import openai
+
+# OpenAI API Key
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+
+client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instance
+
+# # Dynamically select the device (GPU, VPU, or CPU)
+# if torch.cuda.is_available():
+#     device = "cuda"  # Use GPU if available
+# elif torch.backends.mps.is_available():  # For Apple Silicon devices (M1, M2) with VPU support
+#     device = "mps"  # Use VPU if available
+# else:
+#     device = "cpu"  # Default to CPU if neither GPU nor VPU is available
+
+
+
+# Load a pre-trained conversational model (Llama)
+# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+# tokenizer = AutoTokenizer.from_pretrained(model_name,token=HUGGINGFACE_TOKEN)
+# qa_model = AutoModelForCausalLM.from_pretrained(model_name,token=HUGGINGFACE_TOKEN)
 
 bp = Blueprint('main', __name__)
+
+
+# def answer_question(context, question):
+#     # Format the input for the model: context followed by the question
+#     prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
+
+#     # Tokenize the prompt and prepare inputs
+#     inputs = tokenizer(prompt, return_tensors="pt").to(device)
+
+#     # Generate a response from the model
+#     generated_ids = qa_model.generate(inputs["input_ids"], max_new_tokens=1000, do_sample=True)
+
+#     # Decode the generated response
+#     generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+
+#     # Return the response
+#     return generated_text
+
+def answer_question(context, question):
+    """Use OpenAI's GPT-4 API to answer the question based on the context."""
+    prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+        return response.choices[0].message.content  # New response format
+    except Exception as e:
+        return f"Error: {e}"
+
 
 # Route to get all meetings of the current user
 @bp.route('/meetings', methods=['GET'])
 @login_required
 def get_meetings():
     meetings = current_user.meetings.all()
-    return jsonify([{"id": m.id, "topic": m.topic} for m in meetings]), 200
+    return jsonify([{"id": m.id, "topic": m.topic, "transcript":m.transcript} for m in meetings]), 200
 
 # Route to get details of a specific meeting, including messages with created_at
 @bp.route('/meeting/<int:meeting_id>', methods=['GET'])
@@ -42,7 +99,7 @@ def send_message():
     data = request.get_json()
     content = data.get('content')  # Get the content of the message
     meeting_id = data.get('meeting_id')  # Get the meeting ID (optional, if existing meeting)
-    topic = data.get('topic', 'transcription')  # Get the topic of the message (defaults to 'transcription' if not provided)
+    topic = data.get('topic', 'question_answer')  # Get the topic of the message (defaults to 'question_answer' if not provided)
 
     if not content:
         return jsonify({"error": "Message content is required"}), 400
@@ -73,8 +130,13 @@ def send_message():
     user_message = Message(content=content, is_user=True, topic=topic, meeting_id=meeting.id)
     db.session.add(user_message)
     
-    # Optional: Add an automatic system reply
-    system_message = Message(content="Message received, thank you!", is_user=False, topic="transcription", meeting_id=meeting.id)
+
+    # Generate the answer based on the transcript and question
+    transcript = meeting.transcript or ""
+    answer_text = answer_question(transcript, content)
+
+    # Store AI response
+    system_message = Message(content=answer_text, is_user=False, topic="transcription", meeting_id=meeting.id)
     db.session.add(system_message)
     
     db.session.commit()  # Commit both the message and the system reply
@@ -84,6 +146,7 @@ def send_message():
         "meeting": {
             "id": meeting.id,
             "topic": meeting.topic,
+            "transcript": meeting.transcript,
             "messages": [{
                 "content": user_message.content,
                 "is_user": user_message.is_user,
@@ -97,29 +160,3 @@ def send_message():
             }]
         }
     }), 201
-
-
-@bp.route('/send-transcript', methods=['POST'])
-@login_required
-def upload_transcript():
-    data = request.json
-    transcript = data.get('transcript')
-    meeting_id = data.get('meetingId')
-
-    if not transcript or not meeting_id:
-        return jsonify({'error': 'Missing transcript or meetingId'}), 400
-
-    # Check if the meeting exists
-    meeting = Meeting.query.get(meeting_id)
-    if not meeting:
-        return jsonify({'error': 'Meeting not found'}), 404
-
-    # Check if the meeting is associated with the current user (if needed)
-    if meeting.user_id != current_user.id:
-        return jsonify({'error': 'You are not authorized to update this meeting'}), 403
-
-    # Process the transcript, save it to the meeting
-    meeting.transcript = transcript
-    db.session.commit()
-
-    return jsonify({'message': 'Transcript uploaded successfully'}), 200

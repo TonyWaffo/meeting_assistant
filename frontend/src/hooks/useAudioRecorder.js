@@ -1,50 +1,74 @@
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch} from 'react-redux';
 
-import { useState, useRef } from 'react';
+import { uploadFile } from "../api/meeting"; // Import your sendTranscript function
+import { setActiveMeeting } from '../redux/meetingHistorySlice';
 
 const useAudioRecorder = () => {
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
 
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  const activeMeeting = useSelector((state) => state.meetingHistory);
 
-  // Start recording audio
-  const startRecording = async () => {
-    // Clear the previous audio URL and blob when starting a new recording
-    setAudioUrl(null);
-    setAudioBlob(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+  useEffect(() => {
+    // Check if the MediaRecorder API is available
+    if (navigator.mediaDevices && MediaRecorder) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+          const recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = (event) => {
+            const blob = event.data;
+            setAudioBlob(blob);
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);  // You can use this URL to play the audio or download it
+          };
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
+          recorder.onstop = async () => {};
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setAudioBlob(audioBlob);
-        setAudioUrl(URL.createObjectURL(audioBlob)); // Generate URL to play the audio
-        audioChunksRef.current = [];
-      };
+          setMediaRecorder(recorder);
+        })
+        .catch((err) => {
+          console.error('Error accessing microphone', err);
+        });
+    } else {
+      console.error('MediaRecorder not supported in this browser.');
+    }
+  }, []);
 
-      mediaRecorderRef.current.start();
+  useEffect(() => {
+    
+  }, [activeMeeting]);
+
+  const startRecording = () => {
+    if (mediaRecorder) {
+      setAudioBlob(null); // Clear any existing audio
+      mediaRecorder.start();
       setRecording(true);
-    } catch (error) {
-      console.error('Error accessing the microphone:', error);
     }
   };
 
-  // Stop recording audio
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
+    if (mediaRecorder) {
+      mediaRecorder.stop();
       setRecording(false);
     }
   };
 
-  return { recording, audioBlob, audioUrl, startRecording, stopRecording };
+  const clearAudioBlobAndUrl = () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+  };
+
+  return {
+    recording,
+    startRecording,
+    stopRecording,
+    audioBlob,
+    audioUrl,
+    clearAudioBlobAndUrl,
+  };
 };
 
 export default useAudioRecorder;

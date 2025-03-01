@@ -21,6 +21,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
             try {
                 const response = await getMeetings();
                 setMeetings(response); // Update sidebar with latest meetings
+                console.log(meetings)
                 if(response.length==0){
                     clearActiveMeetingView ();
                 }
@@ -36,6 +37,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
     // Handle meeting selection
     const handleSelectMeeting = (meeting) => {
         dispatch(setActiveMeeting(meeting));
+        console.log(meeting);
     };
 
     const clearActiveMeetingView =()=>{

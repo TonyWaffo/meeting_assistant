@@ -48,11 +48,10 @@ const Authentication = () => {
         setIsLoggedIn(true);
         closeAuthenticationPopup();
       }
+      dispatch(clearActiveMeeting());
     } catch (error) {
       setErrorMessage(error.message);
     }
-
-    dispatch(clearActiveMeeting());
   };
 
   // Handle logout
@@ -62,11 +61,10 @@ const Authentication = () => {
       localStorage.removeItem('user');
       setIsLoggedIn(false);
       closeAuthenticationPopup();
+      dispatch(clearActiveMeeting());
     } catch (error) {
       setErrorMessage(error.message);
     }
-
-    dispatch(clearActiveMeeting());
   };
 
   // Close the authentication pupup box on the screen

@@ -1,10 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-import wave
-import numpy as np
-from app import db
+from app import db,config
 from app.models import Meeting, Message
-import pyaudio
 import whisper
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch
@@ -30,13 +27,10 @@ audio = pyaudio.PyAudio()
 
 bp = Blueprint('audio', __name__)
 
-def save_chunk_to_file(audio_chunk):
-    """Saves an audio chunk to a WAV file for processing."""
-    with wave.open(TEMP_AUDIO_FILE, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(audio.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(audio_chunk)
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def answer_question(context, question):
@@ -93,33 +87,37 @@ def upload_file():
     db.session.add(new_meeting)
     db.session.commit()
 
-    return jsonify({"message": "File uploaded successfully", "transcript": transcript, "meeting_id": new_meeting.id}), 200
+        # Get the messages related to the meeting
+        user_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=True).all()
+        system_messages = Message.query.filter_by(meeting_id=meeting.id, is_user=False).all()
 
-# Route to send a question and get an answer based on the transcribed text
-@bp.route('/answer', methods=['POST'])
-@login_required
-def answer():
-    data = request.get_json()
-    question = data.get('question')  # Question from the user
-    meeting_id = data.get('meeting_id')  # Meeting ID from the user
+        # Format the messages
+        user_message_data = [{
+            "content": msg.content,
+            "is_user": msg.is_user,
+            "topic": msg.topic,
+            "created_at": msg.created_at.isoformat()
+        } for msg in user_messages]
 
-    if not question or not meeting_id:
-        return jsonify({"error": "Both question and meeting_id are required"}), 400
+        system_message_data = [{
+            "content": msg.content,
+            "is_user": msg.is_user,
+            "topic": msg.topic,
+            "created_at": msg.created_at.isoformat()
+        } for msg in system_messages]
 
-    # Fetch the meeting transcript from the database using the meeting_id
-    meeting = Meeting.query.get(meeting_id)
-    
-    if not meeting:
-        return jsonify({"error": "Meeting not found"}), 404
+        return jsonify({
+            "message": "File uploaded and transcript processed successfully",
+            "meeting": {
+                "id": meeting.id,
+                "topic": meeting.topic,
+                "transcript": meeting.transcript,
+                "messages": user_message_data + system_message_data  # Combine both user and system messages
+            }
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    transcript = meeting.transcript  # Assuming 'transcript' is a column in the Meeting model
-    
-    if not transcript:
-        return jsonify({"error": "Transcript not available for this meeting"}), 404
 
-    # Generate the answer based on the transcript and question
-    answer_text = answer_question(transcript, question)
-    
-    return jsonify({"answer": answer_text}), 200
 
 

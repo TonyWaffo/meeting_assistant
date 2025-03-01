@@ -42,7 +42,7 @@ export const getMeetingDetails = async (meetingId) => {
 };
 
 // Send a message to a meeting
-export const sendMessage = async (content, meetingId = null, topic = 'transcription') => {
+export const sendMessage = async (content, meetingId = null, topic = 'question_answer') => {
   try {
     const response = await fetch(`${API_URL}/meeting/message`, {
       method: 'POST',
@@ -66,50 +66,54 @@ export const sendMessage = async (content, meetingId = null, topic = 'transcript
 };
 
 // Upload a file (e.g., a meeting transcript)
-export const uploadFile = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
+export const uploadFile = async (file, meetingId = null) => {
   try {
-    const response = await fetch(`${API_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',  // Include cookies in the request for session management
-    });
+      const formData = new FormData();
+      formData.append('file', file);
+      if (meetingId) {
+          formData.append('meetingId', meetingId);
+      }
 
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to upload file');
-    }
+      const response = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include' // Include cookies for session management
+      });
 
-    return await response.json();
+      if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to upload file');
+      }
+
+      return await response.json();
   } catch (error) {
-    console.error('File upload failed:', error.message);
-    throw error;
+      console.error('Error uploading file:', error.message);
+      throw error;
   }
 };
 
 // Send the transcript to the backend for a meeting
-export const sendTranscript = async (transcript, meetingId) => {
-  try {
-    const response = await fetch(`${API_URL}/send-transcript`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ transcript, meetingId }),
-      credentials: 'include',  // Include cookies in the request for session management
-    });
+// export const sendTranscript = async (transcript, meetingId = null) => {
+//   try {
+//     const response = await fetch(`${API_URL}/send-transcript`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ transcript, meetingId }),
+//       credentials: 'include', // Include cookies for session management
+//     });
 
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to send transcript');
-    }
+//     if (!response.ok) {
+//       const data = await response.json();
+//       throw new Error(data.error || 'Failed to send transcript');
+//     }
 
-    return await response.json();
-  } catch (error) {
-    console.error('Send transcript failed:', error.message);
-    throw error;
-  }
-};
+//     // Return the response data (meeting info and messages)
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Send transcript failed:', error.message);
+//     throw error;
+//   }
+// };
 
