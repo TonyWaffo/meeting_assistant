@@ -102,11 +102,17 @@ def send_message():
     
 
     # Generate the answer based on the transcript and question
-    transcript = meeting.transcript or ""
-    answer_text = answer_question(transcript, content)
+    # Retrieve transcript chunks using the method defined in your Meeting model.
+    transcript_chunks = meeting.get_transcript_chunks_by_tokens()  
+
+    # Process each chunk with answer_question and collect the responses.
+    answers = [answer_question(chunk, content) for chunk in transcript_chunks]
+
+    # Combine the answers into one final response.
+    final_answer_text = "\n".join(answers)
 
     # Store AI response
-    system_message = Message(content=answer_text, is_user=False, topic="transcription", meeting_id=meeting.id)
+    system_message = Message(content=final_answer_text, is_user=False, topic="transcription", meeting_id=meeting.id)
     db.session.add(system_message)
     
     db.session.commit()  # Commit both the message and the system reply
