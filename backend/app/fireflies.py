@@ -40,18 +40,19 @@ def upload_video(url,meeting_title):
     try:
         response = requests.post(GRAPHQL_URL, json=data, headers=headers)
         response_data = response.json()
-        print("Upload Response:", response_data)
+        # print("Upload Response:", response_data)
 
         if response_data.get("data") and response_data["data"].get("uploadAudio")["success"]:
             print("Video uploaded successfully!")
-            return jsonify({"message": "Video uploaded successfully!"}), 200
+            return True,'Video uploaded successfully!'
         else:
-            print("Upload failed:", response_data)
-            return jsonify({"message": "Upload failed", "details": response_data}), 400
+            error_message = response_data.get("errors", [{}])[0].get("message", "Unknown error occurred")
+            # print("Upload failed:", error_message)
+            return False, error_message
 
     except requests.exceptions.RequestException as e:
         print("Upload Error:", e)
-        return jsonify({"message": "Error uploading video", "error": str(e)}), 500
+        return False,e
 
 def get_transcript(transcript_id):
     headers = {
