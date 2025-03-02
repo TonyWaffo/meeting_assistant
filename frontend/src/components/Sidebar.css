@@ -69,7 +69,12 @@
 }
 
 .sidebar-features > div > div ul li:hover {
-    background-color: rgb(197, 195, 195);
+    background-color: rgb(238, 237, 237);
+    cursor: pointer;
+}
+
+.sidebar-features > div > div ul li.active {
+    background-color: rgb(197, 193, 193);
     cursor: pointer;
 }
 

@@ -33,11 +33,11 @@ def answer_question(context, question):
         return f"Error: {e}"
 
 
-# Route to get all meetings of the current user
+# Route to get all meetings of the current user in
 @bp.route('/meetings', methods=['GET'])
 @login_required
 def get_meetings():
-    meetings = current_user.meetings.all()
+    meetings = current_user.meetings.order_by(Meeting.id.desc()).all()
     return jsonify([{"id": m.id, "topic": m.topic, "transcript":m.transcript} for m in meetings]), 200
 
 # Route to get details of a specific meeting, including messages with created_at

@@ -43,6 +43,8 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
     const clearActiveMeetingView =()=>{
         // Reset the active meeting state in Redux to null
         dispatch(clearActiveMeeting());
+
+        closeSidebar();
     }
 
     // Open the authentication popup box
@@ -75,7 +77,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
                     <div className="history-list">
                         <ul>
                             {meetings.map((meeting,index)=>(
-                                <li key={index} onClick={()=>handleSelectMeeting(meeting)}>
+                                <li className={activeMeeting.id==meeting.id? 'active':''} key={index} onClick={()=>handleSelectMeeting(meeting)}>
                                     {meeting.topic}
                                 </li>
                             ))}

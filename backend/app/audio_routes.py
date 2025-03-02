@@ -164,18 +164,21 @@ def upload_file():
         except Exception as e:
             print(f"Error deleting file: {e}")
 
-        # Deriving the topic from the first few words of the transcript
-        topic = " ".join(full_transcript.split()[:5])  # First 5 words as topic (you can adjust this logic)
-
         # Create a new meeting in the database
         new_meeting = Meeting(
-            topic=topic,
+            topic="Meeting",  # Temporary placeholder topic
             transcript=full_transcript,
             user_id=current_user.id  # Assuming the user is logged in and you want to associate the meeting with the current user
         )
 
         # Add the meeting to the session and commit to save it in the database
         db.session.add(new_meeting)
+        db.session.commit()
+
+        # Now that the meeting has an id, update the topic
+        new_meeting.topic = f"Meeting {new_meeting.id}"
+
+        # Commit again to save the updated topic
         db.session.commit()
 
         # Retrieve related messages
