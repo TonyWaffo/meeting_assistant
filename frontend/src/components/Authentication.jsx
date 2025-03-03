@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch,useSelector } from 'react-redux';
 import { registerUser, loginUser, logoutUser, checkSession } from '../api/auth';
 import { clearActiveMeeting } from '../redux/meetingHistorySlice';
-import { closeAuthentication,openAuthentication } from '../redux/authenticationSlice';
+import { closeAuthentication,openAuthentication,setUserLoggedIn,setUserLoggedOut } from '../redux/authenticationSlice';
 import './Authentication.css'
 
 import { IoCloseCircle } from "react-icons/io5";
 
 const Authentication = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -17,15 +16,16 @@ const Authentication = () => {
   const dispatch=useDispatch();
 
   const isPopupOpen = useSelector((state) => state.authentication.isOpen); // access the popup visibility state
+  const isLoggedIn= useSelector((state) => state.authentication.isLoggedIn)
 
   // Check session on mount
   useEffect(() => {
     const verifySession = async () => {
       try {
         await checkSession();
-        setIsLoggedIn(true);
+        dispatch(setUserLoggedIn())
       } catch (error) {
-        setIsLoggedIn(false);
+        dispatch(setUserLoggedOut())
       }
     };
 
@@ -40,12 +40,13 @@ const Authentication = () => {
     try {
       if (isRegistering) {
         const user = await registerUser(email, password);
-        localStorage.setItem('user', JSON.stringify(user));
-        setIsLoggedIn(true);
+        // localStorage.setItem('user', JSON.stringify(user));
+        // dispatch(setUserLoggedIn());
+        setIsRegistering(!isRegistering);
       } else {
         const user = await loginUser(email, password);
         localStorage.setItem('user', JSON.stringify(user));
-        setIsLoggedIn(true);
+        dispatch(setUserLoggedIn())
         closeAuthenticationPopup();
       }
       dispatch(clearActiveMeeting());
@@ -59,7 +60,7 @@ const Authentication = () => {
     try {
       await logoutUser();
       localStorage.removeItem('user');
-      setIsLoggedIn(false);
+      dispatch(setUserLoggedOut())
       closeAuthenticationPopup();
       dispatch(clearActiveMeeting());
     } catch (error) {

@@ -132,6 +132,8 @@ def upload_file():
             print(f"Error saving file: {e}")
             return jsonify({"error": "File not saved"}), 500
         
+        output_audio_path=''
+
         if filename.lower().endswith('.mp4'):  # Check if it's a video and needs conversion
             input_video_path = file_path
             output_audio_name = f"{os.path.splitext(file_name)[0]}.mp3"
@@ -160,7 +162,8 @@ def upload_file():
 
         print("File url: ",url)
         print("File path: ",file_path)
-        print("Coverted path: ",output_audio_path)
+        if output_audio_path:
+            print("Coverted path: ",output_audio_path)
         
         if not os.path.exists(file_path):
             print(f"Error: File {file_path} was not saved correctly.")

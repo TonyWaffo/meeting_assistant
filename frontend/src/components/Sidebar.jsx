@@ -14,6 +14,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
     const dispatch=useDispatch();
     const [meetings, setMeetings] = useState([]);
     const activeMeeting = useSelector((state) => state.meetingHistory);
+    const isUserLoggedIn= useSelector((state) => state.authentication.isLoggedIn)
 
     // Fetch meetings from API on component mount
     useEffect(() => {
@@ -32,7 +33,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
         };
 
         fetchMeetings ();  // Call the function to load meetings
-    }, [activeMeeting]); // Refetch when activeMeeting updates
+    }, [activeMeeting,isUserLoggedIn]); // Refetch when activeMeeting updates
 
     // Handle meeting selection
     const handleSelectMeeting = (meeting) => {
