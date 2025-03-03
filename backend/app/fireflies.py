@@ -5,7 +5,7 @@ from flask import jsonify
 FIREFLIES_API_KEY = os.getenv("FIREFLIES_API_KEY")
 GRAPHQL_URL = "https://api.fireflies.ai/graphql"
 
-def upload_video(url,meeting_title):
+def upload_media(url,meeting_title):
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {FIREFLIES_API_KEY}",

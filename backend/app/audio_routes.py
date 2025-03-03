@@ -6,8 +6,9 @@ from datetime import datetime
 import os
 import uuid
 import time
+import ffmpeg
 
-from app.fireflies import upload_video,get_admin_id,get_transcripts,get_transcript
+from app.fireflies import upload_media,get_admin_id,get_transcripts,get_transcript
 
 bp = Blueprint('audio', __name__)
 
@@ -17,10 +18,19 @@ RETRY_DELAY = 10  # Number of seconds to wait before retrying
 MAX_ID_RETRIES = 42  # Max times to check for transcript ID
 ID_RETRY_DELAY = 10  # Seconds to wait before retrying
 
-ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a'}
+ALLOWED_EXTENSIONS = {'mp3', 'mp4', 'wav', 'ogg', 'm4a'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def convert_video_to_audio(input_video, output_audio):
+    try:
+        ffmpeg.input(input_video).output(output_audio, format='mp3', audio_bitrate='192k').run(overwrite_output=True)
+        print(f"Conversion successful: {output_audio}")
+        return output_audio
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+        return None
 
 
 def wait_for_transcript_id(admin_id, meeting_title):
@@ -71,6 +81,14 @@ def wait_for_transcript(transcript_id):
     return None, None
 
 
+def remove_file(file_path):
+    try:
+        os.remove(file_path)
+        print(f"Deleted file: {file_path}")
+    except Exception as e:
+        print(f"Error deleting file: {e}")
+
+
 # Route to upload an audio file, transcribe it, and create a meeting
 @bp.route('/upload', methods=['POST'])
 @login_required
@@ -86,35 +104,49 @@ def upload_file():
         # Assume 'file' is your audio file object and it has the 'filename' attribute
         filename = file.filename
 
-        # Assume 'file' is your audio file object and 'email' and 'name' are provided
-        audio_chunk = file.read()
-
-        # Get the current timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
         # Define the directory for saving files
         uploads_dir = current_app.config["UPLOAD_FOLDER"]
+
+        if not allowed_file(filename):
+            return jsonify({"error": "Invalid file format"}), 400
+        
 
         # Ensure the directory exists
         os.makedirs(uploads_dir, exist_ok=True)
 
+        # Get the current timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Construct the file name
-        file_name = f"{timestamp}_{email}_{filename}".replace(" ","_")
+        # file_name = f"{timestamp}_{email}_{filename}".replace(" ","_")
         file_name = f"{timestamp}_{uuid.uuid4().hex}_{filename}".replace(" ", "_")
 
         # Full path to save the file
         file_path = os.path.join(uploads_dir, file_name)
 
-        # Write the audio chunk to the file
         try:
-            with open(file_path, 'wb') as f:
-                f.write(audio_chunk)
-        except IOError as e:
-            print(f"Error writing file: {e}")
+            # Save the file to disk
+            file.save(file_path)
+            print(f"File saved successfully at {file_path}")
+        except Exception as e:
+            print(f"Error saving file: {e}")
             return jsonify({"error": "File not saved"}), 500
+        
+        if filename.lower().endswith('.mp4'):  # Check if it's a video and needs conversion
+            input_video_path = file_path
+            output_audio_name = f"{os.path.splitext(file_name)[0]}.mp3"
+            output_audio_path = os.path.join(uploads_dir, output_audio_name)
+                
+            # Perform the conversion and update filename
+            converted_filename = convert_video_to_audio(input_video_path, output_audio_path)
+            
+            if not converted_filename:
+                return jsonify({"error": "Error during video to audio conversion"}), 500
 
-        print('filename',file_name)
+            # Update file_name to the new audio file name (take the last part of the path)
+            file_name = os.path.basename(converted_filename)  # Only the last part of the path (filename)
+
+        print('File name: ',file_name)
 
         
         # Get the base URL for ngrok from your configuration
@@ -126,15 +158,16 @@ def upload_file():
         #Create a meeting title to reference it when needed
         meeting_title=file_name
 
-        print("File url",url)
-        print("File path",file_path)
+        print("File url: ",url)
+        print("File path: ",file_path)
+        print("Coverted path: ",output_audio_path)
         
         if not os.path.exists(file_path):
             print(f"Error: File {file_path} was not saved correctly.")
             return jsonify({"error": "File not saved"}), 500
         
         # Upload video to fireflies for processing
-        status,status_text=upload_video(url,meeting_title)
+        status,status_text=upload_media(url,meeting_title)
         if status==False:
             print(status_text)
             return jsonify({"error": status_text}), 500
@@ -158,11 +191,10 @@ def upload_file():
             print("\nFailed to retrieve transcript.")
 
         # Delete the file after processing
-        try:
-            os.remove(file_path)
-            print(f"Deleted file: {file_path}")
-        except Exception as e:
-            print(f"Error deleting file: {e}")
+        if output_audio_path:
+            remove_file(output_audio_path)
+
+        remove_file(file_path)
 
         # Create a new meeting in the database
         new_meeting = Meeting(
