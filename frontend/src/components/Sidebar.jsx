@@ -57,8 +57,8 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
       <>
           <section className="sidebar-section">
             <div className="sibebar-header">
-                <div>TransMeet</div>
-                <div>
+                <div className='logo'>TransMeet</div>
+                <div className='toggle-icon'>
                     {sidebarVisibility && <TbLayoutSidebarLeftCollapse size={30} onClick={closeSidebar}/>}
                 </div>
             </div>
@@ -89,10 +89,10 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
 
             <div className="contact-links">
                 <ul>
-                    <li><a href="tel:+1234567890">Support: +1234567890</a></li>
-                    <li><a href="https://www.instagram.com/yourprofile" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-                    <li><a href="mailto:support@example.com">Email: support@example.com</a></li>
-                    <li><a href="https://www.website.com">Website</a></li>
+                    {/* <li><a href="tel:+1234567890">Support: +1234567890</a></li> */}
+                    <li><a href="https://www.instagram.com/b.ease_ci?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                    <li><a href="mailto:b.easeteam@gmail.com">b.easeteam@gmail.com</a></li>
+                    {/* <li><a href="https://www.website.com">Website</a></li> */}
                 </ul>
             </div>
           </section>

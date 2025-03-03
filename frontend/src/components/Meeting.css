@@ -86,11 +86,12 @@
 .query-container .query-actions .query-buttons button{
     margin-right: 10px;
     border: 0px solid black;
-    background-color: rgb(150, 148, 146);
+    background-color: #eca581;
+    /* background: linear-gradient(to bottom, #f7c868 0%, #eca581 90%); rgb(150, 148, 146);*/
 }
 .query-container .query-actions .query-buttons button:hover{
-    background-color: rgb(74, 74, 82);
-    color: white;
+    background-color: #f7c868;
+    color: black;
 }
 
 .query-container .query-actions .query-buttons .send-icon{

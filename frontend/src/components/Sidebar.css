@@ -4,6 +4,7 @@
     display: flex;
     flex-direction: column;
     padding: 10px;
+    background: linear-gradient(to bottom, #f7c868 0%, #eca581 90%);
 }
 
 .sibebar-header {
@@ -13,6 +14,14 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 0px solid black; /* Added border for separation */
+}
+
+.sibebar-header .logo{
+    font-weight: bold;
+    font-size: 25px;
+}
+.sibebar-header .toggle-icon{
+    cursor: pointer;
 }
 
 .sidebar-features {
@@ -69,12 +78,14 @@
 }
 
 .sidebar-features > div > div ul li:hover {
-    background-color: rgb(238, 237, 237);
+    background-color: #5555552b;
+    color: white;
     cursor: pointer;
 }
 
 .sidebar-features > div > div ul li.active {
-    background-color: rgb(197, 193, 193);
+    background-color: #5555559f;
+    color: white;
     cursor: pointer;
 }
 
@@ -91,7 +102,7 @@
 .contact-links {
     text-align: center;
     border-top: 1px solid black;
-    padding-top: 20px; /* Added padding for better spacing */
+    padding-bottom: 10px; /* Added padding for better spacing */
     margin-top: auto; /* Push to the bottom */
 }
 
@@ -103,7 +114,7 @@
 
 .contact-links ul li {
     border: 0px solid black;
-    padding: 10px; /* Reduced padding */
+    padding: 6px; /* Reduced padding */
 }
 
 .contact-links ul li a {
@@ -113,5 +124,4 @@
 
 .contact-links ul li a:hover {
     text-decoration: underline;
-    font-size: large;
 }

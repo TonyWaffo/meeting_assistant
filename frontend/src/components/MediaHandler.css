@@ -86,11 +86,10 @@ input[type="file"] {
 .process-audio{
     cursor: pointer;
     margin-top: 5px;
-    background-color: rgb(129, 129, 129);
+    background-color: #eca581;
 }
 .process-audio:hover{
-    cursor: pointer;
-    background-color: rgb(129, 129, 129);
+    background-color: #f7c868;
     color:white;
     transform: scale(1.05);
 }

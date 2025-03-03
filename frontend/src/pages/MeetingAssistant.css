@@ -17,7 +17,7 @@
     width: 300px;
     z-index: 10;
     background-color: white; 
-    border-right: 1px solid black;
+    border-right: 0px solid black;
     transition: 0.5s;
 }
 .sidebar.closed{
@@ -27,7 +27,7 @@
 .sidebar-header{
     display: flex;
     flex-direction: row;
-    border: 1px solid  black;
+    border: 1px solid  black;  
 }
 
 .mainframe{

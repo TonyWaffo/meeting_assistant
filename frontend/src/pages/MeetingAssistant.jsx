@@ -4,6 +4,8 @@ import Authentication from "../components/Authentication";
 import { openAuthentication,closeAuthentication } from "../redux/authenticationSlice";
 import './MeetingAssistant.css'
 
+import bEaseLogo from '/images/logo_bEase_noBg.png'
+
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -34,7 +36,9 @@ const MeetingAssistant=()=>{
                 <div>
                 {!sidebarVisibility && <TbLayoutSidebarLeftExpand size={30} onClick={openSidebar} />}
                 </div>
-                <div>Logo</div>
+                <div>
+                  <img src={bEaseLogo} width="100px" height="50px"></img>
+                </div>
             </div>
             <Meeting/>
         </div>
