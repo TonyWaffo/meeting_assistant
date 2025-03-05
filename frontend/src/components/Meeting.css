@@ -33,10 +33,11 @@
 }
 
 .meeting-content .conversation{
-    border: 1px solid black;
+    border: 1px solid rgba(192, 190, 190, 0.893);
     width:70%;
     word-wrap: break-word;
     padding: 10px;
+    background-color:  rgba(210, 210, 210, 0.434);
 }
 .meeting-content .conversation.system{
     align-self: flex-start;
@@ -86,11 +87,10 @@
 .query-container .query-actions .query-buttons button{
     margin-right: 10px;
     border: 0px solid black;
-    background-color: #eca581;
-    /* background: linear-gradient(to bottom, #f7c868 0%, #eca581 90%); rgb(150, 148, 146);*/
+    background-color: #f7c868;
 }
 .query-container .query-actions .query-buttons button:hover{
-    background-color: #f7c868;
+    background: linear-gradient(to right, #eca581 0%, #f7c868 90%);
     color: black;
 }
 

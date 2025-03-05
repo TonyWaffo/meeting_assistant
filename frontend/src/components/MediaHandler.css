@@ -86,12 +86,16 @@ input[type="file"] {
 .process-audio{
     cursor: pointer;
     margin-top: 5px;
-    background-color: #eca581;
+    /* background: linear-gradient(to right, #f7c868 0%, #eca581 90%); */
+    background-color: #f7c868;
 }
 .process-audio:hover{
+    cursor: pointer;
+    transition: 0.5s;
     background-color: #f7c868;
     color:white;
     transform: scale(1.05);
+    background: linear-gradient(to right, #eca581 0%, #f7c868 90%);
 }
   
 .glowing-button {

@@ -12,7 +12,7 @@ import { IoSendSharp } from "react-icons/io5";
 const Meeting=()=>{
     const dispatch=useDispatch()
     const [file,setFile]=useState("");
-    const [transcript,setTranscript]=useState("jgh");
+    const [transcript,setTranscript]=useState("");
     const [conversations,setConversations]=useState(null);
     const [loadingResponse,setLoadingResponse]=useState("");
     const [messageContent, setMessageContent] = useState(""); // New state for message input
@@ -122,7 +122,7 @@ const Meeting=()=>{
                     { (activeMeeting.transcript || conversations) && conversations?.map((message,index)=>(
                         <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
                             <b>{(message.is_user==true ? "user":"system").toUpperCase()}</b><br/>
-                            <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i>
+                            {/* <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i> */}
                             <p>{message.content}</p>
                         </div>
                     ))}
