@@ -125,3 +125,20 @@
 .contact-links ul li a:hover {
     text-decoration: underline;
 }
+
+/* Customize the scrollbar for Webkit-based browsers (Chrome, Edge, Safari) */
+.sidebar-section ::-webkit-scrollbar {
+    width: 10px; /* Set the width of the scrollbar */
+    height: 10px; /* Set the height of the horizontal scrollbar */
+}
+
+.sidebar-section ::-webkit-scrollbar-thumb {
+    background-color: black; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Round the thumb */
+    border: 0px solid #eca581; /* Add a border around the thumb */
+}
+
+.sidebar-section ::-webkit-scrollbar-track {
+    background: #ececec; /* Color of the track */
+    border-radius: 10px; /* Round the track */
+}

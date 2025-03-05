@@ -5,7 +5,7 @@
     justify-content: center;
     flex-direction: row;
     overflow: hidden;
-    /* border: 2px solid red; */
+    border: 0px solid red;
 }
 .meeting-assistant.blur{
     filter: blur(2px);
