@@ -38,6 +38,11 @@ const MediaHandler = () => {
 
 
   const processFile = async () => {
+
+    if(loading){
+      return;       // Make sure no other file us trying to be processed when another one is already processing
+    }
+
     setLoading(true);
     let file;
 

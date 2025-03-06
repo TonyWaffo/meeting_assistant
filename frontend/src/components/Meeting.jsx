@@ -122,7 +122,7 @@ const Meeting=()=>{
                     {/* If there is either a transcript available or a conversation history */}
                     { (activeMeeting.transcript || conversations) && conversations?.map((message,index)=>(
                         <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
-                            <b>{(message.is_user==true ? "user":"system").toUpperCase()}</b><br/>
+                            <b>{message.is_user==true ? "Moi":"TransMeet"}</b><br/>
                             {/* <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i> */}
                             <p dangerouslySetInnerHTML={{ __html: message?.content }}></p>
                         </div>

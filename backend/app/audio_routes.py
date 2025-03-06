@@ -177,10 +177,10 @@ def upload_file():
 
         
         # Get the base URL for ngrok from your configuration
-        ngrok_base_url = "https://324f-135-19-4-239.ngrok-free.app"  # Replace with your ngrok URL
+        server_url = os.getenv('SERVER_URL')
         
         # Construct the full URL for the file
-        url = f"{ngrok_base_url}/uploads/{file_name}"
+        url = f"{server_url}/uploads/{file_name}"
 
         #Create a meeting title to reference it when needed
         meeting_title=file_name

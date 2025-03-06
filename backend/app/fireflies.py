@@ -221,7 +221,7 @@ def get_transcripts(user_id,meeting_title):
             transcripts = response_data['data']['transcripts']
             print("Checking all transcripts...")
             for transcript in transcripts:
-                print(transcript['id'])
+                # print(transcript['id'])
                 if transcript['title']==meeting_title:
                     return transcript['id']
                 
