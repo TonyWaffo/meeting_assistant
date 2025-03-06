@@ -1,0 +1,128 @@
+.media-handler{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+    border: 0px solid black;
+    border-radius: 5px;
+    padding:10px;
+    /* max-width: 100%; or specify a max width like 400px */
+    /* overflow-x: hidden; */
+}
+
+.media-uploader{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px dashed black;
+    border-radius: 5px;
+    padding: 50px 10px;
+    text-align: center;
+}
+.media-uploader .upload-icon:hover{
+    transform: scale(1.1);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.media-recorder{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:20px;
+    border: 1px dashed black;
+    border-radius: 5px;
+    padding:10px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.mic-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0px solid black;
+    border-radius: 50%;
+    padding: 10px;
+    transition: border-width 0.3s ease-in;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgb(94, 92, 92);
+}
+
+.recorder-button{
+    height:50px;
+}
+.mic-container.pulsing-circle{
+    animation: pulse-glow 1s infinite alternate;
+}
+
+.recorder-instruction{
+    text-align: center;
+}
+
+/* @keyframes pulse {
+    0%{
+        border-width: 1px;
+        opacity: 1;
+    }
+    25%{
+        border-width: 10px;
+        opacity: 0.8;
+    }
+    100%{
+        border-width: 1px;
+        opacity: 1;
+    }
+} */
+
+.process-audio{
+    cursor: pointer;
+    margin-top: 5px;
+    /* background: linear-gradient(to right, #f7c868 0%, #eca581 90%); */
+    background-color: #f7c868;
+}
+.process-audio:hover{
+    cursor: pointer;
+    transition: 0.5s;
+    background-color: #f7c868;
+    color:white;
+    transform: scale(1.05);
+    background: linear-gradient(to right, #eca581 0%, #f7c868 90%);
+}
+  
+.glowing-button {
+    color:black;
+    animation: pulse-glow 1s infinite alternate;
+}
+.process-audio:hover{
+    cursor:default;
+   color: black;
+}
+
+.transcription-result{
+    width: 100%;
+    border: 0px solid black;
+    word-wrap: break-word;  /* Allows breaking long words */
+    overflow-wrap: break-word; /* Additional support for breaking words */
+    white-space: normal; /* Makes text wrap normally */
+}
+
+@keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 5px rgb(94, 92, 92);
+    }
+    50% {
+      box-shadow: 0 0 20px rgb(94, 92, 92);
+    }
+    100% {
+      box-shadow: 0 0 5px rgb(94, 92, 92);
+    }
+}

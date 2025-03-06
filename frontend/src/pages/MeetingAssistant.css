@@ -1,0 +1,78 @@
+.meeting-assistant{
+    width:100vw;
+    height:100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    overflow: hidden;
+    border: 0px solid red;
+}
+.meeting-assistant.blur{
+    filter: blur(2px);
+    opacity: 0.7;
+    pointer-events: none;
+}
+.sidebar{
+    height:100%;
+    width: 300px;
+    z-index: 10;
+    background-color: white; 
+    border-right: 0px solid black;
+    transition: 0.5s;
+}
+.sidebar.closed{
+    width:0px;
+    overflow: hidden;
+}
+.sidebar-header{
+    display: flex;
+    flex-direction: row;
+    border: 1px solid  black;  
+}
+
+.mainframe{
+    position: relative;
+    height:100vh;
+    overflow-y: auto;
+    border:0px solid black;
+    padding: 0px 0px;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.mainframe-header{
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: row;
+    border: 0px solid black;
+    justify-content: space-between;
+}
+.mainframe-header div:first-child{
+    cursor: pointer;
+}
+.mainframe-header img{
+    border: 0px solid black;
+    max-width: 100px;  /* Set a max width for the logo */
+    max-height: 100px; /* Set a max height for the logo */
+    width: auto; /* Automatically adjust width to maintain the aspect ratio */
+    height: auto; /* Automatically adjust height to maintain the aspect ratio */
+}
+
+@media screen and (max-width:900px) {
+    .sidebar{
+        width:70%;
+        position: fixed;
+        top:0;
+        left:0;
+    }
+
+    .mainframe.blur{
+        filter: blur(1px);
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+}

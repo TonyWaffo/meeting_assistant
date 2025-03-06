@@ -1,0 +1,57 @@
+/* Center Authentication */
+.authentication-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 30; /* Ensure it's above everything else */
+    background-color: white;
+    padding: 20px 20px;
+    border-radius: 8px;
+    box-shadow: 0px 1px 10px gray;
+    width: auto;
+    max-width: 400px;
+    text-align: center;
+}
+
+.authentication-overlay > div{
+    position: relative;
+}
+
+.authentication-overlay .close-icon{
+    position: absolute;
+    top:-30px;
+    right: 0;
+    cursor: pointer;
+}
+
+.authentication-overlay input{
+  width: 80%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.authentication-overlay input:focus {
+  border-color: gray;
+}
+
+.authentication-overlay button {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.authentication-overlay button:hover {
+  background-color: black;
+}

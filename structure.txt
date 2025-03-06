@@ -1,0 +1,27 @@
+/src
+  ├── /components           
+  │   ├── Sidebar.jsx       # Left panel with navigation options
+  │   ├── Meeting.jsx       # Recording & transcription view
+  │   ├── History.jsx       # Previous meetings list
+  │   ├── Login.jsx         # User authentication section
+  │   ├── Summary.jsx       # Displays AI summary of the meeting
+  │   ├── Transcript.jsx    # Shows full transcript
+  │   ├── ToggleButton.jsx  # Handles sidebar toggle
+  │
+  ├── /pages                
+  │   ├── MeetingAssistant.jsx  # Main layout, switches views dynamically
+  │
+  ├── /context             
+  │   ├── MeetingContext.js  # Manages state across components
+  │
+  ├── /hooks
+  │   ├── useToggle.js       # Handles sidebar visibility
+  │
+  ├── /utils
+  │   ├── api.js             # Handles backend API calls
+  │
+  ├── App.jsx                # Main App component
+  ├── main.jsx               # Entry point
+
+
+  I had to install ffmpeg and put it in my envrironment variables
