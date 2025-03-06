@@ -3,8 +3,6 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Meeting, Message
 from app import db
-from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline, AutoModelForCausalLM, AutoTokenizer
-import torch
 import os
 
 import openai
