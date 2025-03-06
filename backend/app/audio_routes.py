@@ -188,7 +188,7 @@ def upload_file():
         print("File url: ",url)
         print("File path: ",file_path)
         if output_audio_path:
-            print("Coverted path: ",output_audio_path)
+            print("Converted path: ",output_audio_path)
         
         if not os.path.exists(file_path):
             print(f"Error: File {file_path} was not saved correctly.")
@@ -197,7 +197,7 @@ def upload_file():
         # Upload video to fireflies for processing
         status,status_text=upload_media(url,meeting_title)
         if status==False:
-            print(status_text)
+            # print(status_text)
             return jsonify({"error": status_text}), 500
 
 

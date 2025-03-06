@@ -133,12 +133,6 @@ def get_transcript(transcript_id):
             html_transcript+=f'   <li><strong>{speech['speaker']}:</strong> {speech['text']}</li>\n'
 
         html_transcript+="</ul>"
-
-        
-
-        print(html_transcript)
-
-
         
         return meeting_summary,html_transcript
 

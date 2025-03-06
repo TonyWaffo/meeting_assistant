@@ -16,6 +16,13 @@ def create_app():
     load_dotenv()  # Load environment variables from .env file
 
     env = os.getenv('FLASK_ENV', 'development')  # Default to development
+
+    if env == 'production':
+        load_dotenv('.env.prod')  # Load production-specific .env file
+    else:
+        load_dotenv('.env')  # Load default development .env file
+    
+
     app = Flask(__name__)
     app.config.from_object(config[env])  # Load the appropriate config
 
