@@ -6,6 +6,7 @@ from app import db
 import os
 
 import openai
+import ollama
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -17,22 +18,39 @@ client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instan
 bp = Blueprint('main', __name__)
 
 
+# def answer_question(context, question):
+#     """Use OpenAI's GPT-4 API to answer the question based on the context."""
+#     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+#     messages=[{"role": "user", "content": prompt}]
+#     messages.append({
+#         "role":"user",
+#         "content":"Please ensure  the response is formated in the requested format and language mentionned in the prompt. Include approrpiate tags based on the format and return the respone in a single '' since it will be put together as html"
+#     })
+#     try:
+#         response = client.chat.completions.create(
+#             model="gpt-4",
+#             messages=messages,
+#             temperature=0.2,
+#         )
+#         print(response.choices[0].message.content)
+#         return response.choices[0].message.content  # New response format
+#     except Exception as e:
+#         return f"Error: {e}"
+
 def answer_question(context, question):
     """Use OpenAI's GPT-4 API to answer the question based on the context."""
     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
-    messages=[{"role": "user", "content": prompt}]
+    messages = [
+        {"role": "system", "content": "You are an AI assistant responding based on the given conversation transcript."},
+        {"role": "user", "content": f"Here is the conversation transcript:\n{context}\n\nNow, respond to this: {question}"}
+    ]
     messages.append({
         "role":"user",
         "content":"Please ensure  the response is formated in the requested format and language mentionned in the prompt. Include approrpiate tags based on the format and return the respone in a single '' since it will be put together as html"
     })
     try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
-            temperature=0.2,
-        )
-        print(response.choices[0].message.content)
-        return response.choices[0].message.content  # New response format
+        response = ollama.chat(model="mistral:7b-instruct", messages=messages)
+        return response['message']['content']
     except Exception as e:
         return f"Error: {e}"
 
@@ -108,6 +126,7 @@ def send_message():
     # Generate the answer based on the transcript and question
     # Retrieve transcript chunks using the method defined in your Meeting model.
     transcript_chunks = meeting.get_transcript_chunks_by_tokens()  
+    transcript_chunks=meeting.transcript
 
     # Process each chunk with answer_question and collect the responses.
     answers = [answer_question(chunk, content) for chunk in transcript_chunks]

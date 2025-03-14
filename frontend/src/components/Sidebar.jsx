@@ -57,7 +57,7 @@ const Sidebar=({closeSidebar,sidebarVisibility})=>{
       <>
           <section className="sidebar-section">
             <div className="sibebar-header">
-                <div className='logo'>TransMeet</div>
+                <div className='logo'>Kéré</div>
                 <div className='toggle-icon'>
                     {sidebarVisibility && <TbLayoutSidebarLeftCollapse size={30} onClick={closeSidebar}/>}
                 </div>

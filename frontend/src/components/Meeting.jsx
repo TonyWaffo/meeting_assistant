@@ -40,6 +40,7 @@ const Meeting=()=>{
     useEffect(() => {
         fetchMeetingDetails();
         setMessageContent("");
+        setLoadingResponse(false);
     }, [activeMeeting]);
 
     useEffect(()=>{
@@ -93,6 +94,7 @@ const Meeting=()=>{
         }
     };
 
+
     /**
      * Create a useEffect hooks that upload the meeting content based on the
      * meeting history(or not).
@@ -122,7 +124,7 @@ const Meeting=()=>{
                     {/* If there is either a transcript available or a conversation history */}
                     { (activeMeeting.transcript || conversations) && conversations?.map((message,index)=>(
                         <div key={index} className={`conversation ${message.is_user==true ? "user":"system"}`}>
-                            <b>{message.is_user==true ? "Moi":"TransMeet"}</b><br/>
+                            <b>{message.is_user==true ? "Moi":"Kéré"}</b><br/>
                             {/* <i>{(message.topic).charAt(0).toUpperCase() + (message.topic).slice(1)}</i> */}
                             <p dangerouslySetInnerHTML={{ __html: message?.content }}></p>
                         </div>
@@ -139,7 +141,8 @@ const Meeting=()=>{
                     value={messageContent}
                     onInput={handleInputChange}
                     onChange={(e) => setMessageContent(e.target.value)}
-                    disabled={!activeMeeting.transcript}
+                    // disabled={!activeMeeting.transcript }
+                    readOnly={!activeMeeting.transcript || loadingResponse}
                     placeholder={activeMeeting.transcript ? 'Posez une question sur le meeting' : 'Faites un enregistrement pour utiliser le chat'}>
                 </textarea>
 

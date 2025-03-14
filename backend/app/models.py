@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import re
 import tiktoken  # Ensure you have installed tiktoken (pip install tiktoken)
+from bs4 import BeautifulSoup
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,6 +63,44 @@ class Meeting(db.Model):
         # Add any remaining text as the last chunk
         if current_chunk:
             chunks.append(current_chunk.strip())
+        return chunks
+    
+    def get_transcript_chunks_by_characters(self, max_characters=5000):
+        """
+        Splits the transcript into chunks where each chunk has no more than max_characters characters.
+        It splits on sentence boundaries to keep the text coherent.
+        """
+        # Split transcript into sentences using a simple regex
+        sentences = re.split(r'(?<=[.!?])\s+', self.transcript)
+        soup = BeautifulSoup(self.transcript, 'html.parser')
+        example = soup.get_text()
+        sentences = re.split(r'(?<=[.!?])\s+(?=[A-Z])', example)
+        chunks = []
+        current_chunk = ""
+        current_char_count = 0
+
+        for sentence in sentences:
+            # Count characters for the sentence
+            sentence_char_count = len(sentence)
+            
+            # If adding this sentence exceeds the max character limit, save the current chunk and reset
+            if current_char_count + sentence_char_count > max_characters:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = sentence
+                current_char_count = sentence_char_count
+            else:
+                # Append the sentence to the current chunk
+                if current_chunk:
+                    current_chunk += " " + sentence
+                else:
+                    current_chunk = sentence
+                current_char_count += sentence_char_count
+
+        # Add any remaining text as the last chunk
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+        
         return chunks
 
 class Message(db.Model):
