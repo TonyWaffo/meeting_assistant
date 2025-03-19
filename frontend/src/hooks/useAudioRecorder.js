@@ -44,17 +44,21 @@ const useAudioRecorder = () => {
   }, [audioBlob, audioUrl]); // This hook will trigger whenever these values change
 
   const startRecording = () => {
+    console.log("Trying to start recording")
     if (mediaRecorder) {
       setAudioBlob(null); // Clear any existing audio
       mediaRecorder.start();
       setRecording(true);
+      console.log("Recording has started")
     }
   };
 
   const stopRecording = () => {
+    console.log("Trying to stop recording")
     if (mediaRecorder) {
       mediaRecorder.stop();
       setRecording(false);
+      console.log("Recording has stopped")
     }
   };
 

@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -39,6 +39,27 @@ def create_app():
     @app.route('/')  # Define route for "/"
     def home():
         return "Welcome to my Flask app!"
+    
+    # Route to print environment variables
+    @app.route('/env')
+    def print_env():
+        return jsonify({
+            "DATABASE_URL": os.environ.get('DATABASE_URL'),
+            "SERVER_URL": os.environ.get('SERVER_URL'),
+            "FRONTEND_URL":os.environ.get('FRONTEND_URL'),
+            "FLASK_ENV": os.environ.get('FLASK_ENV'),
+            "OPENAI_API_KEY": os.environ.get('OPENAI_API_KEY'),
+            "FIREFLIES_API_KEY": os.environ.get('FIREFLIES_API_KEY'),
+        })
+    
+    # Route to test database connection
+    @app.route('/test_db')
+    def test_db():
+        try:
+            db.engine.connect()
+            return "Database connection successful!"
+        except Exception as e:
+            return f"Database connection failed: {str(e)}"
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
