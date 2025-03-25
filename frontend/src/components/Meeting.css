@@ -67,11 +67,13 @@
     align-self: center;
     gap: 10px;
     box-shadow: 0px 1px 10px gray;
+    background-color: rgba(128, 128, 128, 0.181);
 }
 
 .query-container textarea{
     height: 100%;
     resize: none ;
+    background-color: transparent;
     border: 0px solid black;
     outline: none;
 }

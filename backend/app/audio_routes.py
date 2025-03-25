@@ -178,6 +178,7 @@ def upload_file():
         
         # Get the base URL for ngrok from your configuration
         server_url = os.getenv('SERVER_URL')
+        print(server_url)
         
         # Construct the full URL for the file
         url = f"{server_url}/uploads/{file_name}"

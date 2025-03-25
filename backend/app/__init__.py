@@ -50,6 +50,7 @@ def create_app():
             "FLASK_ENV": os.environ.get('FLASK_ENV'),
             "OPENAI_API_KEY": os.environ.get('OPENAI_API_KEY'),
             "FIREFLIES_API_KEY": os.environ.get('FIREFLIES_API_KEY'),
+            "SECRET_KEY": os.environ.get('SECRET_KEY'),
         })
     
     # Route to test database connection

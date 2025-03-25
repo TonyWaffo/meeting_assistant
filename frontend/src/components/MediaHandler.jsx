@@ -89,7 +89,7 @@ const MediaHandler = () => {
         <>
           <div className="media-uploader">
             <input type="file" ref={fileRef} onChange={handleFileUpload}/>
-            <b> {audioFile ? audioFile?.name : "Cliquez pour ajouter un fichier"}</b>
+            <b> {audioFile ? audioFile?.name : "Cliquez pour ajouter votre réunion"}</b>
             <IoAddCircle className="upload-icon" size={50} onClick={triggerUpload} />
             {/* <span className="file-instruction">Click to add</span> */}
           </div>
@@ -114,7 +114,7 @@ const MediaHandler = () => {
 
           <button className={`process-audio ${loading ? "glowing-button" : ""}`} 
             onClick={processFile} disabled={loading}>
-            {loading ? "En traitement..." : "Transcribe Audio"}
+            {loading ? "En traitement..." : "Transcris l\'audio"}
           </button>
         </>
       ):(
