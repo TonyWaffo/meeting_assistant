@@ -132,7 +132,7 @@ The app should now be accessible at `http://localhost:3000`.
 - `GPOSTPOSTET /meetings`: Upload a file and create a meeting if it doesn't exist
 
 ### Transcription
-- `POST /transcribe`: Uploads audio files for transcription.
+- `POST /upload`: Uploads audio files for transcription.
 
 ---
 
