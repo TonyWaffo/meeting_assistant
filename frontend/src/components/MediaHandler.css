@@ -68,6 +68,27 @@ input[type="file"] {
     text-align: center;
 }
 
+.upload-error {
+    position: absolute;
+    top: -50px; /* Start off-screen */
+    background-color: rgba(240, 58, 58, 0.901);
+    text-align: center;
+    color: white;
+    border-radius: 5px;
+    border: 2px solid rgba(171, 5, 5, 0.901);
+    padding: 10px;
+    margin: 20px;
+    opacity: 0; /* Initially hidden */
+    transition: top 0.9s ease, opacity 0.9s ease; /* Transition for both top and opacity */
+}
+
+.upload-error.visible {
+    top: 0px; /* Slide to its normal position */
+    opacity: 1; /* Fade in */
+}
+
+
+
 /* @keyframes pulse {
     0%{
         border-width: 1px;

@@ -15,6 +15,7 @@ const MediaHandler = () => {
   const { recording, startRecording, stopRecording,audioBlob,audioUrl,clearAudioBlobAndUrl } = useAudioRecorder();
   const [loading, setLoading] = useState(false);
   const [audioFile,setAudioFile]=useState(null);
+  const [uploadError,setUploadError]=useState(null);
 
   const fileRef=useRef(null);
 
@@ -43,6 +44,7 @@ const MediaHandler = () => {
       return;       // Make sure no other file us trying to be processed when another one is already processing
     }
 
+    
     setLoading(true);
     let file;
 
@@ -55,6 +57,20 @@ const MediaHandler = () => {
       return;
     }
 
+    if(file.size< 614400){
+      const errorMessage = `Audio trop court. Minimum: 600 KB, Soumis: ${(file.size / 1024).toFixed(2)} KB`;
+      setUploadError(errorMessage);
+    
+      // Automatically remove the error after 15 seconds
+      setTimeout(() => {
+        setUploadError('');
+      }, 15000);
+
+      setLoading(false);
+      return 
+    }
+    setUploadError('')
+
     console.log(file);
     
     try {
@@ -65,6 +81,7 @@ const MediaHandler = () => {
         clearAudioBlobAndUrl();
       } catch (error) {
         console.error('Upload failed:', error);
+        setUploadError(error)
     }
           
     setLoading(false);
@@ -83,6 +100,11 @@ const MediaHandler = () => {
 
   return (
     <div className="media-handler">
+      {uploadError && (
+        <div className={`upload-error ${uploadError ? 'visible' : ''}`}>
+          {uploadError}
+        </div>
+      )}
 
       {!activeMeeting?.transcript ?
       (
@@ -111,7 +133,6 @@ const MediaHandler = () => {
             {recording && <span className="recorder-instruction">En train d'enregistrer...</span>}
             {(audioBlob && !recording)  && <span className="recorder-instruction">Meeting enregistré</span>}
           </div>
-
           <button className={`process-audio ${loading ? "glowing-button" : ""}`} 
             onClick={processFile} disabled={loading}>
             {loading ? "En traitement..." : "Transcris l\'audio"}
