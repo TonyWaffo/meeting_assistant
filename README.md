@@ -57,7 +57,6 @@ Ensure the database is set up and the correct URL is provided in the .env file. 
 - Node.js and npm/yarn
 - Virtual Environment (recommended)
 - Ollama model (e.g., Mistral) — Pull the model to match the one used in the answer_question method.
-- FFmpeg — Required for compressing videos into audio.
 
 ### SERVER_URL with Ngrok (dev mode)
 SERVER_URL is used in audio_routes.py to access audio files in the uploads/ folder via an HTTP link. Since localhost isn't accessible from outside your machine, you can expose the local server with ngrok:

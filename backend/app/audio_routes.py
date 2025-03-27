@@ -6,7 +6,7 @@ from datetime import datetime,timedelta
 import os
 import uuid
 import time
-import ffmpeg
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from app.fireflies import upload_media,get_admin_id,get_transcripts,get_transcript
 
@@ -25,9 +25,14 @@ def allowed_file(filename):
 
 def convert_video_to_audio(input_video, output_audio):
     try:
-        ffmpeg.input(input_video).output(output_audio, format='mp3', audio_bitrate='192k').run(overwrite_output=True)
-        print(f"Conversion successful: {output_audio}")
-        return output_audio
+        video = VideoFileClip(input_video)
+        if video.audio:
+            video.audio.write_audiofile(output_audio, bitrate="192k")
+            print(f"Conversion successful: {output_audio}")
+            return output_audio
+        else:
+            print("Error: No audio found in the video.")
+            return None
     except Exception as e:
         print(f"Error during conversion: {e}")
         return None
