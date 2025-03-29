@@ -28,7 +28,7 @@ class Meeting(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     messages = db.relationship('Message', backref='meeting', lazy='dynamic')
 
-    def get_transcript_chunks_by_tokens(self, max_tokens=300, model_name="gpt-3.5-turbo"):
+    def get_transcript_chunks_by_tokens(self, max_tokens=100000, model_name="gpt-3.5-turbo"):
         """
         Splits the transcript into chunks where each chunk has no more than max_tokens tokens.
         It splits on sentence boundaries to keep the text coherent.

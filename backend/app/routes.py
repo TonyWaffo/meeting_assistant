@@ -1,15 +1,17 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request,current_app
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Meeting, Message
 from app import db
 import os
-
+import json
+import http.client
 import openai
 import ollama
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OLLAMA_URL=os.getenv("OLLAMA_URL")
 
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instance
@@ -17,7 +19,7 @@ client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Create an OpenAI client instan
 
 bp = Blueprint('main', __name__)
 
-
+# Answer question with the Open AI version 
 # def answer_question(context, question):
 #     """Use OpenAI's GPT-4 API to answer the question based on the context."""
 #     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
@@ -37,22 +39,83 @@ bp = Blueprint('main', __name__)
 #     except Exception as e:
 #         return f"Error: {e}"
 
-def answer_question(context, question):
-    """Use OpenAI's GPT-4 API to answer the question based on the context."""
-    prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
-    messages = [
-        {"role": "system", "content": "You are an AI assistant responding based on the given conversation transcript."},
-        {"role": "user", "content": f"Here is the conversation transcript:\n{context}\n\nNow, respond to this: {question}"}
-    ]
-    messages.append({
-        "role":"user",
-        "content":"Please ensure  the response is formated in the requested format and language mentionned in the prompt. Include approrpiate tags based on the format and return the respone in a single '' since it will be put together as html"
-    })
+# Answer question with the old ollama version
+# def answer_question(context, question):
+#     """Use OpenAI's GPT-4 API to answer the question based on the context."""
+#     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+#     messages = [
+#         {"role": "system", "content": "You are an AI assistant responding based on the given conversation transcript."},
+#         {"role": "user", "content": f"Here is the conversation transcript:\n{context}\n\nNow, respond to this: {question}"}
+#     ]
+#     messages.append({
+#         "role":"user",
+#         "content":"Please ensure  the response is formated in the requested format and language mentionned in the prompt. Include approrpiate tags based on the format and return the respone in a single '' since it will be put together as html"
+#     })
+#     try:
+#         response = ollama.chat(model="mistral:7b-instruct", messages=messages)
+#         return response['message']['content']
+#     except Exception as e:
+#         return f"Error: {e}"
+
+# Answer question with the new Ollama version 
+def answer_question(context,question):
     try:
-        response = ollama.chat(model="mistral:7b-instruct", messages=messages)
-        return response['message']['content']
+        # Configuration de la connexion
+        conn = http.client.HTTPConnection(OLLAMA_URL, 8000)
+        
+        prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+        # Préparation des données de la requête
+        payload = json.dumps({
+            "model": "mistral:latest",
+            "prompt": prompt,
+            "system": "Vous êtes un expert en IA qui explique les concepts de façon simple",
+            "options": {
+                "temperature": 0.7,
+                "top_p": 0.9,
+                "max_tokens": 1000
+            },
+            "stream": False
+        })
+        
+        # En-têtes de la requête
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        
+        # Envoi de la requête
+        conn.request("POST", "/generate", payload, headers)
+        # Obtention de la réponse
+        response = conn.getresponse()
+        
+        # Lecture et traitement des données
+        if response.status == 200:
+            data = response.read()
+            result = json.loads(data.decode("utf-8"))
+            # print("Réponse reçue avec succès:")
+            # print(result)
+            print(result['response'])
+            return result['response']
+        else:
+            print(f"Erreur: {response.status} {response.reason}")
+            data = response.read()
+            print(data.decode("utf-8"))
+            return None
+            
+    except json.JSONDecodeError:
+        print("Erreur: La réponse n'est pas au format JSON valide")
+        return None
+    except http.client.HTTPException as e:
+        print(f"Erreur HTTP: {e}")
+        return None
     except Exception as e:
-        return f"Error: {e}"
+        print(f"Erreur inattendue: {e}")
+        return None
+    finally:
+        # Fermeture de la connexion
+        if 'conn' in locals():
+            conn.close()
+
+
 
 
 # Route to get all meetings of the current user in
@@ -125,14 +188,17 @@ def send_message():
 
     # Generate the answer based on the transcript and question
     # Retrieve transcript chunks using the method defined in your Meeting model.
-    transcript_chunks = meeting.get_transcript_chunks_by_tokens()  
+    # transcript_chunks = meeting.get_transcript_chunks_by_tokens()  
     transcript_chunks=meeting.transcript
 
     # Process each chunk with answer_question and collect the responses.
-    answers = [answer_question(chunk, content) for chunk in transcript_chunks]
+    # answers = [answer_question(chunk, content) for chunk in transcript_chunks]
+    answers=answer_question(transcript_chunks,content)
 
     # Combine the answers into one final response.
-    final_answer_text = "\n".join(answers)
+    # final_answer_text = "\n".join(answers)
+    final_answer_text = answers
+    
 
     # Store AI response
     system_message = Message(content=final_answer_text, is_user=False, topic="transcription", meeting_id=meeting.id)
