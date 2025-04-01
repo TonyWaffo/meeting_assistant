@@ -13,12 +13,13 @@ from app.fireflies import upload_media,get_admin_id,get_transcripts,get_transcri
 bp = Blueprint('audio', __name__)
 
 MAX_RETRIES =60  # Maximum times to check before giving up
-RETRY_DELAY = 10  # Number of seconds to wait before retrying
+RETRY_DELAY = 20  # Number of seconds to wait before retrying
 
 MAX_ID_RETRIES = 60  # Max times to check for transcript ID
-ID_RETRY_DELAY = 10  # Seconds to wait before retrying
+ID_RETRY_DELAY = 20  # Seconds to wait before retrying
 
-ALLOWED_EXTENSIONS = {'mp3', 'mp4', 'wav', 'ogg', 'm4a'}
+ALLOWED_EXTENSIONS = {'mp3', 'mp4', 'wav', 'ogg', 'm4a', 'avi', 'mov', 'wmv', 'mkv', 'flv', 'webm', 'mpeg'}
+video_formats = (".mp4", ".avi", ".mov", ".wmv", ".mkv", ".flv", ".webm", ".mpeg")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -164,7 +165,7 @@ def upload_file():
         
         output_audio_path=''
 
-        if filename.lower().endswith('.mp4'):  # Check if it's a video and needs conversion
+        if filename.lower().endswith(video_formats):  # Check if it's a video and needs conversion
             input_video_path = file_path
             output_audio_name = f"{os.path.splitext(file_name)[0]}.mp3"
             output_audio_path = os.path.join(uploads_dir, output_audio_name)

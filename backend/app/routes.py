@@ -61,20 +61,16 @@ bp = Blueprint('main', __name__)
 def answer_question(context,question):
     try:
         # Configuration de la connexion
-        conn = http.client.HTTPConnection(OLLAMA_URL, 8000)
+        conn = http.client.HTTPSConnection(OLLAMA_URL)
         
         prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
         # Préparation des données de la requête
         payload = json.dumps({
             "model": "mistral:latest",
             "prompt": prompt,
-            "system": "Vous êtes un expert en IA qui explique les concepts de façon simple",
             "options": {
-                "temperature": 0.7,
-                "top_p": 0.9,
                 "max_tokens": 1000
             },
-            "stream": False
         })
         
         # En-têtes de la requête
