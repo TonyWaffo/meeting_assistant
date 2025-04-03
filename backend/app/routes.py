@@ -79,22 +79,30 @@ def answer_question(context,question):
         }
         
         # Envoi de la requête
-        conn.request("POST", "/generate", payload, headers)
+        conn.request("POST", "/api/generate", payload, headers)
         # Obtention de la réponse
         response = conn.getresponse()
         
         # Lecture et traitement des données
         if response.status == 200:
-            data = response.read()
-            result = json.loads(data.decode("utf-8"))
-            # print("Réponse reçue avec succès:")
-            # print(result)
-            print(result['response'])
-            return result['response']
+            full_text = ""
+            while True:
+                chunk = response.readline()  # Read line by line
+                if not chunk:
+                    break
+                try:
+                    data = json.loads(chunk.decode("utf-8"))  # Parse JSON
+                    if "response" in data:
+                        full_text += data["response"]  # Append chunk
+                    if data.get("done"):  # Stop when "done": true
+                        break
+                except json.JSONDecodeError:
+                    continue  # Ignore partial or invalid chunks
+            
+            print("Full Response:", full_text)
+            return full_text
         else:
             print(f"Erreur: {response.status} {response.reason}")
-            data = response.read()
-            print(data.decode("utf-8"))
             return None
             
     except json.JSONDecodeError:
