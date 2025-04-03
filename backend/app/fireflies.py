@@ -121,16 +121,17 @@ def get_transcript(transcript_id):
             #     if field in sentence:  # Check if key exists in the sentence
             #         print(f'{field.capitalize()}: {sentence[field]}')
             speaker_sentence={
-                'speaker':f'Speaker {sentence['speaker_id']}',
-                'text':f'{sentence['text']}'
+                'speaker':f"Speaker {sentence['speaker_id']}",
+                'text':f"{sentence['text']}"
             }
+            
 
             meeting_transcript.append(speaker_sentence)
 
 
         # Convert the array of speech/sentence in a more readable format
         for speech in meeting_transcript:
-            html_transcript+=f'   <li><strong>{speech['speaker']}:</strong> {speech['text']}</li>\n'
+            html_transcript+=f"   <li><strong>{speech['speaker']}:</strong> {speech['text']}</li>\n"
 
         html_transcript+="</ul>"
         
